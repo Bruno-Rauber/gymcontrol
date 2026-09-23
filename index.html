@@ -76,7 +76,8 @@ h1,h2,h3 { font-family: 'Sora', sans-serif; }
   position: sticky; top: 0;
 }
 #top-bar h1 { flex-shrink: 0; }
-#top-bar #rest-timer { flex: 1; justify-content: flex-end; border: none; background: none; padding: 0; gap: 8px; }
+#top-bar { gap: 10px; }
+#top-bar #timer-chip { margin-left: auto; }
 #top-bar h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
 #top-bar h1 span { color: var(--accent); }
 .icon-btn { width: 38px; height: 38px; border-radius: 50%; display:flex; align-items:center; justify-content:center; background: var(--surface); color: var(--text-2); transition: background .2s; }
@@ -243,49 +244,114 @@ h1,h2,h3 { font-family: 'Sora', sans-serif; }
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-/* ── TIMER DE DESCANSO (inline no top-bar) ── */
-#rest-timer {
+/* ── TIMER BUTTON (top-bar chip) ── */
+#timer-chip {
   display: none;
   align-items: center;
   gap: 6px;
   background: var(--surface2);
   border: 1.5px solid var(--border);
-  border-radius: 12px;
-  padding: 5px 10px;
-  transition: border-color .2s;
-}
-#rest-timer.active { border-color: var(--accent); }
-#rest-timer.finished { border-color: var(--warn); animation: pulse-warn .6s ease infinite alternate; }
-@keyframes pulse-warn { from { border-color: var(--warn); } to { border-color: transparent; } }
-#timer-display {
+  border-radius: 20px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
   font-family: 'Sora', sans-serif;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+#timer-chip.active { border-color: var(--accent); color: var(--accent); background: rgba(168,255,62,.08); }
+#timer-chip.finished { border-color: var(--warn); color: var(--warn); animation: pulse-warn .6s ease infinite alternate; }
+@keyframes pulse-warn { from { border-color: var(--warn); } to { border-color: transparent; } }
+#timer-chip-icon { font-size: 14px; }
+
+/* ── TIMER MODAL (fullscreen popup) ── */
+#modal-timer {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,.75);
+  display: none; align-items: flex-end; justify-content: center;
+}
+#modal-timer.open { display: flex; }
+#timer-sheet {
+  background: var(--surface);
+  border-radius: 24px 24px 0 0;
+  padding: 20px 24px calc(32px + env(safe-area-inset-bottom,0px));
+  width: 100%; max-width: 480px;
+  display: flex; flex-direction: column; align-items: center; gap: 20px;
+}
+#timer-sheet-handle {
+  width: 36px; height: 4px; border-radius: 2px; background: var(--border);
+  margin-bottom: 4px;
+}
+#timer-big-display {
+  font-family: 'Sora', sans-serif;
+  font-size: 72px; font-weight: 800;
+  font-variant-numeric: tabular-nums;
   color: var(--accent);
-  min-width: 40px;
-  text-align: center;
+  letter-spacing: -2px;
+  line-height: 1;
   cursor: pointer;
+  transition: color .2s;
 }
-#rest-timer.finished #timer-display { color: var(--warn); }
-#timer-btns { display: flex; gap: 3px; }
-.timer-btn {
-  width: 26px; height: 26px; border-radius: 7px;
-  background: var(--surface); color: var(--text-2);
+#timer-big-display.finished { color: var(--warn); animation: pulse-text .6s ease infinite alternate; }
+@keyframes pulse-text { from { opacity: 1; } to { opacity: .4; } }
+#timer-arc {
+  width: 200px; height: 200px; position: relative;
   display: flex; align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 700;
-  border: 1px solid var(--border);
-  transition: all .15s;
 }
-.timer-btn:hover { background: var(--border); color: var(--text); }
-.timer-btn.accent { background: var(--accent); color: #0F1117; border-color: var(--accent); }
-#timer-preset {
-  font-size: 10px; color: var(--text-3); cursor: pointer;
-  padding: 2px 5px; border-radius: 5px; border: 1px solid var(--border);
-  background: var(--surface); white-space: nowrap;
-  transition: all .15s;
+#timer-arc svg { position: absolute; inset: 0; transform: rotate(-90deg); }
+#timer-arc-track { fill: none; stroke: var(--surface2); stroke-width: 6; }
+#timer-arc-fill { fill: none; stroke: var(--accent); stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset .9s linear; }
+#timer-arc-fill.finished { stroke: var(--warn); }
+#timer-modal-presets {
+  display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
 }
-#timer-preset:hover { border-color: var(--accent); color: var(--accent); }
+.timer-preset-btn {
+  padding: 6px 14px; border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: var(--surface2); color: var(--text-2);
+  font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all .15s;
+}
+.timer-preset-btn:hover, .timer-preset-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(168,255,62,.1); }
+#timer-modal-controls {
+  display: flex; gap: 12px; align-items: center;
+}
+.timer-modal-btn {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--surface2); border: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 700; color: var(--text-2);
+  cursor: pointer; transition: all .2s;
+}
+.timer-modal-btn:hover { background: var(--border); color: var(--text); }
+#timer-modal-play {
+  width: 72px; height: 72px; font-size: 26px;
+  background: var(--accent); color: #0F1117; border-color: var(--accent);
+}
+#timer-modal-play:hover { opacity: .85; }
+#timer-modal-mute { font-size: 18px; }
+#timer-modal-close {
+  position: absolute; top: 16px; right: 20px;
+  font-size: 22px; color: var(--text-3); background: none; border: none; cursor: pointer;
+  padding: 4px 8px;
+}
+#timer-adjust-row {
+  display: flex; gap: 8px; align-items: center;
+}
+.timer-adjust-btn {
+  padding: 6px 16px; border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: var(--surface2); color: var(--text-2);
+  font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: all .15s;
+}
+.timer-adjust-btn:hover { border-color: var(--text-2); color: var(--text); }
+#timer-sheet-label {
+  font-size: 12px; color: var(--text-3); letter-spacing: .5px; text-transform: uppercase; font-weight: 600;
+}
 
 /* ── EXERCISE STEPPER ── */
 .ex-stepper-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
@@ -329,19 +395,56 @@ h1,h2,h3 { font-family: 'Sora', sans-serif; }
   <div id="top-bar">
     <h1>Gym<span>Control</span></h1>
 
-    <!-- Timer de descanso (visível só na aba Treinos) -->
-    <div id="rest-timer">
-      <div id="timer-display" onclick="toggleTimer()" title="Iniciar/Pausar">1:30</div>
-      <div id="timer-btns">
-        <button class="timer-btn" onclick="adjustTimer(-15)" title="-15s">−</button>
-        <button class="timer-btn accent" id="timer-play-btn" onclick="toggleTimer()">▶</button>
-        <button class="timer-btn" onclick="resetTimer()" title="Resetar">↺</button>
-        <button class="timer-btn" id="timer-mute-btn" onclick="toggleTimerMute()" title="Silenciar alarme">🔔</button>
-      </div>
-      <button id="timer-preset" onclick="cyclePreset()" title="Trocar preset">1:30</button>
-    </div>
+    <!-- Timer chip (visível só na aba Treinos) -->
+    <button id="timer-chip" onclick="openTimerModal()" title="Abrir timer">
+      <span id="timer-chip-icon">⏱</span>
+      <span id="timer-chip-display">1:30</span>
+    </button>
   </div>
   <div id="top-bar-divider"></div>
+
+  <!-- TIMER MODAL -->
+  <div id="modal-timer" onclick="if(event.target===this)closeTimerModal()">
+    <div id="timer-sheet" style="position:relative">
+      <button id="timer-modal-close" onclick="closeTimerModal()">✕</button>
+      <div id="timer-sheet-handle"></div>
+      <div id="timer-sheet-label">Descanso entre séries</div>
+
+      <!-- Arc + big display -->
+      <div id="timer-arc">
+        <svg viewBox="0 0 200 200" width="200" height="200">
+          <circle id="timer-arc-track" cx="100" cy="100" r="88"/>
+          <circle id="timer-arc-fill" cx="100" cy="100" r="88"
+            stroke-dasharray="553" stroke-dashoffset="0"/>
+        </svg>
+        <div id="timer-big-display" onclick="toggleTimer()">1:30</div>
+      </div>
+
+      <!-- Ajuste fino -->
+      <div id="timer-adjust-row">
+        <button class="timer-adjust-btn" onclick="adjustTimerModal(-30)">−30s</button>
+        <button class="timer-adjust-btn" onclick="adjustTimerModal(-15)">−15s</button>
+        <button class="timer-adjust-btn" onclick="adjustTimerModal(15)">+15s</button>
+        <button class="timer-adjust-btn" onclick="adjustTimerModal(30)">+30s</button>
+      </div>
+
+      <!-- Presets -->
+      <div id="timer-modal-presets">
+        <button class="timer-preset-btn" onclick="setTimerPreset(60)" data-secs="60">1:00</button>
+        <button class="timer-preset-btn" onclick="setTimerPreset(90)" data-secs="90">1:30</button>
+        <button class="timer-preset-btn" onclick="setTimerPreset(120)" data-secs="120">2:00</button>
+        <button class="timer-preset-btn" onclick="setTimerPreset(180)" data-secs="180">3:00</button>
+        <button class="timer-preset-btn" onclick="setTimerPreset(300)" data-secs="300">5:00</button>
+      </div>
+
+      <!-- Controls -->
+      <div id="timer-modal-controls">
+        <button class="timer-modal-btn" id="timer-modal-mute" onclick="toggleTimerMute()" title="Silenciar">🔔</button>
+        <button class="timer-modal-btn" id="timer-modal-play" onclick="toggleTimer()">▶</button>
+        <button class="timer-modal-btn" onclick="resetTimer()" title="Resetar">↺</button>
+      </div>
+    </div>
+  </div>
 
   <!-- SCREEN AREA -->
   <div id="screen-area">
@@ -901,7 +1004,7 @@ function switchScreen(name, btn) {
   if(btn) btn.classList.add('active');
   const inTreinos = name==='treinos';
   document.getElementById('fab').style.display = inTreinos ? 'flex' : 'none';
-  document.getElementById('rest-timer').style.display = inTreinos ? 'flex' : 'none';
+  document.getElementById('timer-chip').style.display = inTreinos ? 'flex' : 'none';
   if(!inTreinos) { clearInterval(timerInterval); timerRunning=false; }
   if(name==='historico') renderHistory();
   if(name==='biblioteca') renderLibrary();
@@ -940,7 +1043,7 @@ function selectDay(dayIdx) {
   // Garante que FAB e timer aparecem na aba Treinos
   const inTreinos = document.getElementById('screen-treinos').classList.contains('active');
   document.getElementById('fab').style.display = inTreinos ? 'flex' : 'none';
-  document.getElementById('rest-timer').style.display = inTreinos ? 'flex' : 'none'; // flex = alinhado ao top-bar
+  document.getElementById('timer-chip').style.display = inTreinos ? 'flex' : 'none';
   // Carrega o tempo salvo para este dia
   initTimer();
 }
@@ -1273,7 +1376,6 @@ function registerWeek(exId) {
     save();
     renderDayView();
     resetTimer();
-    toggleTimer();
     if(goal) {
       if(weeks>=3) {
         setTimeout(()=>showToast('🔥 3 semanas completas! Hora de aumentar a carga!'),500);
@@ -1530,26 +1632,94 @@ function formatTime(s) {
   return `${m}:${r.toString().padStart(2,'0')}`;
 }
 
-function updateTimerDisplay() {
-  const el = document.getElementById('timer-display');
-  const timerEl = document.getElementById('rest-timer');
-  const playBtn = document.getElementById('timer-play-btn');
-  if(!el) return;
-  el.textContent = formatTime(timerLeft);
-  if(timerLeft===0) {
-    timerEl.classList.add('finished');
-    timerEl.classList.remove('active');
-    playBtn.textContent='↺';
-  } else if(timerRunning) {
-    timerEl.classList.add('active');
-    timerEl.classList.remove('finished');
-    playBtn.textContent='⏸';
-  } else {
-    timerEl.classList.remove('active','finished');
-    playBtn.textContent='▶';
+// ─── WAKE LOCK & NOTIFICATION ────────────────────────────────────
+let wakeLock = null;
+
+async function requestWakeLock() {
+  try {
+    if('wakeLock' in navigator) {
+      wakeLock = await navigator.wakeLock.request('screen');
+    }
+  } catch(e) {}
+}
+function releaseWakeLock() {
+  try { if(wakeLock) { wakeLock.release(); wakeLock=null; } } catch(e) {}
+}
+async function requestNotificationPermission() {
+  if('Notification' in window && Notification.permission==='default') {
+    await Notification.requestPermission();
   }
-  // Label do preset
-  document.getElementById('timer-preset').textContent=`⏱ ${formatTime(timerTotal)}`;
+}
+function sendTimerNotification() {
+  if('Notification' in window && Notification.permission==='granted') {
+    try {
+      new Notification('GymControl ⏰', {
+        body: 'Descanso concluído! Próxima série!',
+        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💪</text></svg>',
+        silent: false,
+        requireInteraction: true
+      });
+    } catch(e) {}
+  }
+}
+
+// ─── TIMER MODAL ─────────────────────────────────────────────────
+function openTimerModal() {
+  document.getElementById('modal-timer').classList.add('open');
+  updateTimerDisplay();
+  requestNotificationPermission();
+}
+function closeTimerModal() {
+  document.getElementById('modal-timer').classList.remove('open');
+}
+
+function updateTimerDisplay() {
+  const chip     = document.getElementById('timer-chip');
+  const chipDisp = document.getElementById('timer-chip-display');
+  const chipIcon = document.getElementById('timer-chip-icon');
+  const bigDisp  = document.getElementById('timer-big-display');
+  const playBtn  = document.getElementById('timer-modal-play');
+  const arcFill  = document.getElementById('timer-arc-fill');
+  const circumference = 2 * Math.PI * 88; // r=88
+
+  const timeStr = formatTime(timerLeft);
+  if(chipDisp) chipDisp.textContent = timeStr;
+  if(bigDisp)  bigDisp.textContent  = timeStr;
+
+  // Arc progress
+  if(arcFill) {
+    const ratio = timerTotal > 0 ? timerLeft / timerTotal : 1;
+    const offset = circumference * (1 - ratio);
+    arcFill.style.strokeDasharray  = circumference;
+    arcFill.style.strokeDashoffset = offset;
+  }
+
+  if(timerLeft === 0) {
+    chip && chip.classList.add('finished');
+    chip && chip.classList.remove('active');
+    bigDisp && bigDisp.classList.add('finished');
+    arcFill && arcFill.classList.add('finished');
+    if(playBtn) playBtn.textContent = '↺';
+    if(chipIcon) chipIcon.textContent = '⏰';
+  } else if(timerRunning) {
+    chip && chip.classList.add('active');
+    chip && chip.classList.remove('finished');
+    bigDisp && bigDisp.classList.remove('finished');
+    arcFill && arcFill.classList.remove('finished');
+    if(playBtn) playBtn.textContent = '⏸';
+    if(chipIcon) chipIcon.textContent = '▶';
+  } else {
+    chip && chip.classList.remove('active','finished');
+    bigDisp && bigDisp.classList.remove('finished');
+    arcFill && arcFill.classList.remove('finished');
+    if(playBtn) playBtn.textContent = '▶';
+    if(chipIcon) chipIcon.textContent = '⏱';
+  }
+
+  // Active preset highlight
+  document.querySelectorAll('.timer-preset-btn').forEach(b => {
+    b.classList.toggle('active', parseInt(b.dataset.secs||0) === timerTotal);
+  });
 }
 
 function toggleTimer() {
@@ -1557,15 +1727,20 @@ function toggleTimer() {
   if(timerRunning) {
     clearInterval(timerInterval);
     timerRunning=false;
+    releaseWakeLock();
   } else {
     timerRunning=true;
+    requestWakeLock();
     timerInterval=setInterval(()=>{
       if(timerLeft>0) { timerLeft--; updateTimerDisplay(); }
       if(timerLeft===0) {
         clearInterval(timerInterval); timerRunning=false;
+        releaseWakeLock();
         updateTimerDisplay();
         playBeep();
+        sendTimerNotification();
         showToast('⏰ Descanso concluído! Próxima série!');
+        openTimerModal(); // traz o modal pra frente se estiver fechado
       }
     },1000);
   }
@@ -1576,31 +1751,42 @@ function resetTimer() {
   clearInterval(timerInterval);
   timerRunning=false;
   timerLeft=timerTotal;
+  releaseWakeLock();
   updateTimerDisplay();
 }
 
-function adjustTimer(delta) {
+function adjustTimerModal(delta) {
+  const wasRunning = timerRunning;
   clearInterval(timerInterval); timerRunning=false;
-  timerTotal=Math.max(10, timerTotal+delta);
-  timerLeft=timerTotal;
+  timerTotal = Math.max(10, timerTotal+delta);
+  timerLeft  = timerTotal;
   saveTimerForDay(timerTotal);
   updateTimerDisplay();
+  if(wasRunning) toggleTimer();
+}
+
+function adjustTimer(delta) { adjustTimerModal(delta); }
+
+function setTimerPreset(secs) {
+  clearInterval(timerInterval); timerRunning=false;
+  timerTotal = secs; timerLeft = secs;
+  saveTimerForDay(timerTotal);
+  updateTimerDisplay();
+  showToast(`Timer: ${formatTime(secs)}`);
 }
 
 function cyclePreset() {
-  clearInterval(timerInterval); timerRunning=false;
   const idx=TIMER_PRESETS.indexOf(timerTotal);
-  timerTotal=TIMER_PRESETS[(idx+1)%TIMER_PRESETS.length];
-  timerLeft=timerTotal;
-  saveTimerForDay(timerTotal);
-  updateTimerDisplay();
-  showToast(`Tempo salvo: ${formatTime(timerTotal)}`);
+  setTimerPreset(TIMER_PRESETS[(idx+1)%TIMER_PRESETS.length]);
 }
 
 function toggleTimerMute() {
   timerMuted = !timerMuted;
-  const btn = document.getElementById('timer-mute-btn');
-  if(btn) btn.textContent = timerMuted ? '🔕' : '🔔';
+  const icon = timerMuted ? '🔕' : '🔔';
+  const btn1 = document.getElementById('timer-mute-btn');
+  const btn2 = document.getElementById('timer-modal-mute');
+  if(btn1) btn1.textContent = icon;
+  if(btn2) btn2.textContent = icon;
 }
 
 function playBeep() {
@@ -1608,15 +1794,15 @@ function playBeep() {
   try {
     if(!timerBeepCtx) timerBeepCtx=new(window.AudioContext||window.webkitAudioContext)();
     const ctx=timerBeepCtx;
-    [0,150,300].forEach(delay=>{
+    [0,200,400].forEach(delay=>{
       const osc=ctx.createOscillator();
       const gain=ctx.createGain();
       osc.connect(gain); gain.connect(ctx.destination);
       osc.frequency.value=880;
-      gain.gain.setValueAtTime(.3,ctx.currentTime+delay/1000);
-      gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+delay/1000+.15);
+      gain.gain.setValueAtTime(.5,ctx.currentTime+delay/1000);
+      gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+delay/1000+.25);
       osc.start(ctx.currentTime+delay/1000);
-      osc.stop(ctx.currentTime+delay/1000+.15);
+      osc.stop(ctx.currentTime+delay/1000+.25);
     });
   } catch(e){}
 }
@@ -1629,6 +1815,8 @@ function init() {
   renderWeekStrip();
   const todayIdx=new Date().getDay();
   selectDay(todayIdx);
+  // Pede permissão de notificação logo no início (necessário para alertas com tela bloqueada)
+  requestNotificationPermission();
 }
 
 init();
