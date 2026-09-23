@@ -69,11 +69,14 @@ h1,h2,h3 { font-family: 'Sora', sans-serif; }
 }
 /* ── TOP HEADER ── */
 #top-bar {
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex; align-items: center; gap: 10px;
   padding: 16px 16px 8px;
   padding-top: calc(16px + env(safe-area-inset-top, 0px));
   background: var(--bg); z-index: 10;
+  position: sticky; top: 0;
 }
+#top-bar h1 { flex-shrink: 0; }
+#top-bar #rest-timer { flex: 1; justify-content: flex-end; border: none; background: none; padding: 0; gap: 8px; }
 #top-bar h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
 #top-bar h1 span { color: var(--accent); }
 .icon-btn { width: 38px; height: 38px; border-radius: 50%; display:flex; align-items:center; justify-content:center; background: var(--surface); color: var(--text-2); transition: background .2s; }
@@ -240,55 +243,68 @@ h1,h2,h3 { font-family: 'Sora', sans-serif; }
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-/* ── TIMER DE DESCANSO ── */
+/* ── TIMER DE DESCANSO (inline no top-bar) ── */
 #rest-timer {
-  position: fixed;
-  bottom: calc(var(--nav-h) + 16px + env(safe-area-inset-bottom,0px));
-  left: 20px;
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: 16px;
-  padding: 8px 12px;
   display: none;
   align-items: center;
-  gap: 8px;
-  z-index: 15;
-  box-shadow: 0 4px 16px rgba(0,0,0,.3);
+  gap: 6px;
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 5px 10px;
   transition: border-color .2s;
-  min-width: 160px;
 }
 #rest-timer.active { border-color: var(--accent); }
 #rest-timer.finished { border-color: var(--warn); animation: pulse-warn .6s ease infinite alternate; }
 @keyframes pulse-warn { from { border-color: var(--warn); } to { border-color: transparent; } }
 #timer-display {
   font-family: 'Sora', sans-serif;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   color: var(--accent);
-  min-width: 52px;
+  min-width: 40px;
   text-align: center;
   cursor: pointer;
 }
 #rest-timer.finished #timer-display { color: var(--warn); }
-#timer-btns { display: flex; gap: 4px; }
+#timer-btns { display: flex; gap: 3px; }
 .timer-btn {
-  width: 28px; height: 28px; border-radius: 8px;
-  background: var(--surface2); color: var(--text-2);
+  width: 26px; height: 26px; border-radius: 7px;
+  background: var(--surface); color: var(--text-2);
   display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 700;
+  font-size: 12px; font-weight: 700;
   border: 1px solid var(--border);
   transition: all .15s;
 }
 .timer-btn:hover { background: var(--border); color: var(--text); }
 .timer-btn.accent { background: var(--accent); color: #0F1117; border-color: var(--accent); }
 #timer-preset {
-  font-size: 11px; color: var(--text-3); cursor: pointer;
-  padding: 2px 6px; border-radius: 6px; border: 1px solid var(--border);
-  background: var(--surface2); white-space: nowrap;
+  font-size: 10px; color: var(--text-3); cursor: pointer;
+  padding: 2px 5px; border-radius: 5px; border: 1px solid var(--border);
+  background: var(--surface); white-space: nowrap;
   transition: all .15s;
 }
 #timer-preset:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── EXERCISE STEPPER ── */
+.ex-stepper-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.ex-stepper { display: flex; align-items: center; gap: 4px; background: var(--surface2); border-radius: 8px; padding: 4px 8px; }
+.ex-stepper-label { font-size: 12px; color: var(--text-2); min-width: 16px; text-align: center; }
+.ex-stepper-val { font-size: 14px; font-weight: 700; min-width: 32px; text-align: center; font-variant-numeric: tabular-nums; }
+.ex-stepper-btn { width: 22px; height: 22px; border-radius: 5px; background: var(--border); color: var(--text); font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; transition: background .1s; border: none; cursor: pointer; }
+.ex-stepper-btn:hover { background: var(--accent); color: #0F1117; }
+
+/* ── REGISTER BUTTON ── */
+.ex-register-btn {
+  width: 100%; margin-top: 10px; padding: 9px;
+  border-radius: var(--radius-sm); border: 1.5px solid var(--border);
+  background: var(--surface2); color: var(--text-2);
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  transition: all .15s;
+}
+.ex-register-btn:hover { border-color: var(--accent); color: var(--accent); }
+.ex-register-btn.goal-met { background: var(--accent); color: #0F1117; border-color: var(--accent); }
 
 /* GIF detail modal */
 .gif-detail {
@@ -305,11 +321,21 @@ h1,h2,h3 { font-family: 'Sora', sans-serif; }
   <!-- TOP BAR -->
   <div id="top-bar">
     <h1>Gym<span>Control</span></h1>
-    <div style="display:flex;gap:6px">
-      <button class="icon-btn" onclick="openModal('modal-settings-quick')" title="Configurações">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      </button>
+
+    <!-- Timer de descanso (visível só na aba Treinos) -->
+    <div id="rest-timer">
+      <div id="timer-display" onclick="toggleTimer()" title="Iniciar/Pausar">1:30</div>
+      <div id="timer-btns">
+        <button class="timer-btn" onclick="adjustTimer(-15)" title="-15s">−</button>
+        <button class="timer-btn accent" id="timer-play-btn" onclick="toggleTimer()">▶</button>
+        <button class="timer-btn" onclick="resetTimer()" title="Resetar">↺</button>
+      </div>
+      <button id="timer-preset" onclick="cyclePreset()" title="Trocar preset">1:30</button>
     </div>
+
+    <button class="icon-btn" onclick="openModal('modal-settings-quick')" title="Configurações">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
   </div>
 
   <!-- SCREEN AREA -->
@@ -427,17 +453,6 @@ h1,h2,h3 { font-family: 'Sora', sans-serif; }
 
   </div><!-- /screen-area -->
 
-  <!-- TIMER DE DESCANSO -->
-  <div id="rest-timer">
-    <div id="timer-display" onclick="toggleTimer()" title="Iniciar/Pausar">1:30</div>
-    <div id="timer-btns">
-      <button class="timer-btn" onclick="adjustTimer(-15)" title="-15s">-</button>
-      <button class="timer-btn accent" id="timer-play-btn" onclick="toggleTimer()" title="Iniciar/Pausar">▶</button>
-      <button class="timer-btn" onclick="resetTimer()" title="Resetar">↺</button>
-    </div>
-    <button id="timer-preset" onclick="cyclePreset()" title="Trocar preset">⏱ salvar</button>
-  </div>
-
   <!-- FAB -->
   <button id="fab" onclick="openAddExercise()" title="Adicionar exercício" style="display:none">+</button>
 
@@ -479,8 +494,41 @@ h1,h2,h3 { font-family: 'Sora', sans-serif; }
     </div>
 
     <div id="tab-lib">
-      <input type="search" id="modal-lib-search" placeholder="Buscar na biblioteca..." oninput="renderModalLib()" style="margin-bottom:10px">
-      <div id="modal-lib-list" style="max-height:320px;overflow-y:auto"></div>
+      <!-- Passo 1: busca -->
+      <div id="lib-step-search">
+        <input type="search" id="modal-lib-search" placeholder="Buscar na biblioteca..." oninput="renderModalLib()" style="margin-bottom:10px">
+        <div id="modal-lib-list" style="max-height:320px;overflow-y:auto"></div>
+      </div>
+      <!-- Passo 2: configurar meta (aparece após escolher exercício) -->
+      <div id="lib-step-config" style="display:none">
+        <button onclick="backToLibSearch()" style="display:flex;align-items:center;gap:6px;color:var(--text-2);font-size:13px;margin-bottom:14px;background:none;border:none;cursor:pointer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          Voltar
+        </button>
+        <div id="lib-config-exname" style="font-family:'Sora',sans-serif;font-size:17px;font-weight:700;margin-bottom:4px"></div>
+        <div id="lib-config-exmeta" style="font-size:12px;color:var(--text-2);margin-bottom:16px"></div>
+        <div style="background:var(--surface2);border-radius:10px;padding:12px 14px;margin-bottom:14px">
+          <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Defina sua meta</div>
+          <div class="row-2">
+            <div class="form-group" style="margin-bottom:0">
+              <label>Séries</label>
+              <input type="number" id="lib-sets-input" min="1" max="20" value="3">
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label>Repetições</label>
+              <input type="number" id="lib-reps-input" min="1" max="100" value="12">
+            </div>
+          </div>
+          <div class="form-group" style="margin-top:10px;margin-bottom:0">
+            <label>Peso inicial (kg)</label>
+            <input type="number" id="lib-weight-input" min="0" step="0.5" value="0">
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-sm" style="flex:1" onclick="closeModal('modal-exercise')">Cancelar</button>
+          <button class="btn-sm btn-primary" style="flex:1" onclick="confirmLibExercise()">Adicionar ao treino</button>
+        </div>
+      </div>
     </div>
 
     <div id="tab-custom" style="display:none">
@@ -500,11 +548,11 @@ h1,h2,h3 { font-family: 'Sora', sans-serif; }
       <div class="row-2">
         <div class="form-group">
           <label>Séries</label>
-          <input type="number" id="ex-sets-input" placeholder="4" min="1" max="20" value="4">
+          <input type="number" id="ex-sets-input" placeholder="3" min="1" max="20" value="3">
         </div>
         <div class="form-group">
           <label>Repetições</label>
-          <input type="number" id="ex-reps-input" placeholder="10" min="1" max="100" value="10">
+          <input type="number" id="ex-reps-input" placeholder="12" min="1" max="100" value="12">
         </div>
       </div>
       <div class="form-group">
@@ -515,37 +563,6 @@ h1,h2,h3 { font-family: 'Sora', sans-serif; }
         <button class="btn-sm" style="flex:1" onclick="closeModal('modal-exercise')">Cancelar</button>
         <button class="btn-sm btn-primary" style="flex:1" onclick="saveCustomExercise()">Salvar</button>
       </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal: Registrar treino -->
-<div id="modal-log" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-log')">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <div class="modal-title" id="modal-log-exname"></div>
-    <p style="font-size:13px;color:var(--text-2);margin-bottom:16px" id="modal-log-meta"></p>
-    <div class="form-group">
-      <label>Peso usado hoje (kg)</label>
-      <input type="number" id="log-weight" min="0" step="0.5">
-    </div>
-    <div class="row-2">
-      <div class="form-group">
-        <label>Séries feitas</label>
-        <input type="number" id="log-sets" min="1" max="20">
-      </div>
-      <div class="form-group">
-        <label>Repetições</label>
-        <input type="number" id="log-reps" min="1" max="100">
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Observação (opcional)</label>
-      <input type="text" id="log-obs" placeholder="Ex: aumentei dificuldade">
-    </div>
-    <div style="display:flex;gap:8px;margin-top:4px">
-      <button class="btn-sm" style="flex:1" onclick="closeModal('modal-log')">Cancelar</button>
-      <button class="btn-sm btn-primary" style="flex:1" onclick="saveLog()">Registrar</button>
     </div>
   </div>
 </div>
@@ -570,6 +587,18 @@ h1,h2,h3 { font-family: 'Sora', sans-serif; }
     <div style="display:flex;gap:8px;margin-top:4px">
       <button class="btn-sm btn-danger" style="flex:1" onclick="clearDay()">Limpar Dia</button>
       <button class="btn-sm btn-primary" style="flex:1" onclick="saveDayName()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Confirmação genérica -->
+<div id="modal-confirm" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-confirm')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div id="modal-confirm-msg" class="modal-title" style="font-size:16px;margin-bottom:20px"></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-sm" style="flex:1" onclick="closeModal('modal-confirm')">Cancelar</button>
+      <button class="btn-sm btn-danger" style="flex:1" id="modal-confirm-ok">Confirmar</button>
     </div>
   </div>
 </div>
@@ -719,9 +748,23 @@ function load() {
 function save() { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
 
 let state = load();
+// Migration: ensure all exercises have the new structure
+(function migrateState() {
+  for(const d of Object.values(state.days||{})) {
+    for(const ex of (d.exercises||[])) {
+      if(!ex.goal) {
+        ex.goal = { sets: ex.sets, reps: ex.reps, weight: ex.weight };
+      }
+      if(!ex.weekLogs) {
+        // migrate old logs if any
+        ex.weekLogs = (ex.logs||[]).map(l=>({ date: l.date, sets: l.sets, reps: l.reps, weight: l.weight }));
+      }
+    }
+  }
+})();
+
 let selectedDay = null;
 let editExerciseId = null;
-let logExerciseId = null;
 
 // ─── UTILS ─────────────────────────────────────────────────────
 function uid() { return Math.random().toString(36).slice(2,9); }
@@ -738,21 +781,18 @@ function isoWeek(dateStr) {
   const start = new Date(y,0,1);
   return `${y}-W${Math.ceil((((d-start)/86400000)+1)/7)}`;
 }
-// Conta semanas consecutivas em que o treino foi "completo":
-// mesmo peso E séries >= meta E reps >= meta.
-// Só aí faz sentido sugerir aumento de carga.
-function countConsecutiveWeeks(logs, ex) {
+// Conta semanas consecutivas em que o treino atingiu a meta
+function countConsecutiveWeeks(ex) {
+  const logs = ex.weekLogs;
   if(!logs || !logs.length) return 0;
-  const targetSets = ex.sets;
-  const targetReps = ex.reps;
-  const currentWeight = parseFloat(ex.weight);
+  const goal = ex.goal || { sets: ex.sets, reps: ex.reps, weight: ex.weight };
 
-  // Semanas em que o treino foi completo no peso atual
+  // Semanas em que o treino foi completo (atingiu a meta)
   const weeksComplete = [...new Set(
     logs.filter(l =>
-      parseFloat(l.weight) === currentWeight &&
-      parseInt(l.sets)     >= targetSets &&
-      parseInt(l.reps)     >= targetReps
+      parseInt(l.sets)     >= parseInt(goal.sets) &&
+      parseInt(l.reps)     >= parseInt(goal.reps) &&
+      parseFloat(l.weight) >= parseFloat(goal.weight)
     ).map(l => isoWeek(l.date))
   )];
 
@@ -787,6 +827,7 @@ function switchScreen(name, btn) {
   const inTreinos = name==='treinos';
   document.getElementById('fab').style.display = inTreinos ? 'flex' : 'none';
   document.getElementById('rest-timer').style.display = inTreinos ? 'flex' : 'none';
+  if(!inTreinos) { clearInterval(timerInterval); timerRunning=false; }
   if(name==='historico') renderHistory();
   if(name==='biblioteca') renderLibrary();
 }
@@ -824,7 +865,7 @@ function selectDay(dayIdx) {
   // Garante que FAB e timer aparecem na aba Treinos
   const inTreinos = document.getElementById('screen-treinos').classList.contains('active');
   document.getElementById('fab').style.display = inTreinos ? 'flex' : 'none';
-  document.getElementById('rest-timer').style.display = inTreinos ? 'flex' : 'none';
+  document.getElementById('rest-timer').style.display = inTreinos ? 'flex' : 'none'; // flex = alinhado ao top-bar
   // Carrega o tempo salvo para este dia
   initTimer();
 }
@@ -861,43 +902,37 @@ function renderDayView() {
   listEl.innerHTML='';
 
   for(const ex of d.exercises) {
-    const weeks = countConsecutiveWeeks(ex.logs, ex);
+    const goal = ex.goal || { sets: ex.sets, reps: ex.reps, weight: ex.weight };
+    const weeks = countConsecutiveWeeks(ex);
     const isAlert = weeks>=3;
+    const goalMet = parseInt(ex.sets) >= parseInt(goal.sets) &&
+                    parseInt(ex.reps) >= parseInt(goal.reps) &&
+                    parseFloat(ex.weight) >= parseFloat(goal.weight);
     const card = document.createElement('div');
     card.className = 'ex-card' + (isAlert?' alert-card':'');
     const libEx = EXERCISE_DB.find(e=>e.id===ex.libId);
     const iconHtml = libEx ? exIconHtml(libEx,40) : `<span style="font-size:20px">💪</span>`;
+
     let progressHtml = '';
-    if(ex.logs && ex.logs.length>0) {
-      // Último registro para indicar se o treino foi completo
-      const lastLog = [...ex.logs].sort((a,b)=>b.date.localeCompare(a.date))[0];
-      const lastComplete = parseInt(lastLog.sets) >= ex.sets && parseInt(lastLog.reps) >= ex.reps
-                           && parseFloat(lastLog.weight) === parseFloat(ex.weight);
-      const wClass = weeks>=3?'w3':weeks>=2?'w2':'w1';
-      const weekLabel = weeks>0
-        ? `${weeks}/3 semanas completas`
-        : lastComplete ? '1ª semana em andamento' : 'Meta ainda não atingida';
+    if(ex.weekLogs && ex.weekLogs.length>0) {
+      const wClass = weeks>=3?'w3':weeks>=2?'w2':weeks>=1?'w1':'';
+      const weekLabel = weeks>0 ? `${weeks}/3 semanas completas` : 'Nenhuma semana completa';
       progressHtml = `<div class="progress-row">
         <div class="progress-bar"><div class="progress-fill ${wClass}" style="${weeks===0?'width:0%':''}"></div></div>
         <span class="progress-weeks">${weekLabel}</span>
       </div>`;
-      if(!lastComplete && weeks===0) {
-        progressHtml += `<div class="alert-badge" style="color:var(--text-3);background:rgba(90,96,117,.12)">📝 Última série incompleta · Meta: ${ex.sets}x${ex.reps}</div>`;
-      }
       if(isAlert) progressHtml += `<div class="alert-badge">🔥 Hora de aumentar a carga!</div>`;
     }
+
     card.innerHTML = `
       <div class="ex-card-top">
         <div class="ex-icon">${iconHtml}</div>
         <div class="ex-info">
           <div class="ex-name">${ex.name}</div>
-          <div class="ex-meta">${ex.sets}x${ex.reps} · ${ex.weight}kg${ex.group?' · '+ex.group:''}</div>
+          <div class="ex-meta">${ex.group||''}</div>
         </div>
         <div class="ex-actions">
-          <button class="ex-action-btn" onclick="openLog('${ex.id}')" title="Registrar treino">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          </button>
-          <button class="ex-action-btn" onclick="openEditExercise('${ex.id}')" title="Editar">
+          <button class="ex-action-btn" onclick="openEditExercise('${ex.id}')" title="Editar meta">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           </button>
           <button class="ex-action-btn" onclick="removeExercise('${ex.id}')" title="Remover" style="color:var(--danger)">
@@ -905,7 +940,28 @@ function renderDayView() {
           </button>
         </div>
       </div>
-      ${progressHtml}`;
+      <div class="ex-stepper-row">
+        <div class="ex-stepper">
+          <button class="ex-stepper-btn" onclick="updateExValue('${ex.id}','sets',-1)">−</button>
+          <span class="ex-stepper-val">${ex.sets}</span>
+          <button class="ex-stepper-btn" onclick="updateExValue('${ex.id}','sets',1)">+</button>
+          <span class="ex-stepper-label">séries</span>
+        </div>
+        <div class="ex-stepper">
+          <button class="ex-stepper-btn" onclick="updateExValue('${ex.id}','reps',-1)">−</button>
+          <span class="ex-stepper-val">${ex.reps}</span>
+          <button class="ex-stepper-btn" onclick="updateExValue('${ex.id}','reps',1)">+</button>
+          <span class="ex-stepper-label">reps</span>
+        </div>
+        <div class="ex-stepper">
+          <button class="ex-stepper-btn" onclick="updateExValue('${ex.id}','weight',-0.5)">−</button>
+          <span class="ex-stepper-val">${ex.weight}kg</span>
+          <button class="ex-stepper-btn" onclick="updateExValue('${ex.id}','weight',0.5)">+</button>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--text-3);margin-top:5px">Meta: ${goal.sets}×${goal.reps} · ${goal.weight}kg</div>
+      ${progressHtml}
+      <button class="ex-register-btn${goalMet?' goal-met':''}" onclick="registerWeek('${ex.id}')">✓ Registrar esta semana</button>`;
     listEl.appendChild(card);
   }
 }
@@ -923,14 +979,15 @@ function openEditExercise(exId) {
   const d=state.days[selectedDay];
   const ex=d.exercises.find(e=>e.id===exId);
   if(!ex) return;
+  const goal = ex.goal || { sets: ex.sets, reps: ex.reps, weight: ex.weight };
   editExerciseId=exId;
-  document.getElementById('modal-ex-title').textContent='Editar Exercício';
+  document.getElementById('modal-ex-title').textContent='Editar Meta';
   switchExTab('custom');
   document.getElementById('ex-name-input').value=ex.name;
   document.getElementById('ex-group-input').value=ex.group||'';
-  document.getElementById('ex-sets-input').value=ex.sets;
-  document.getElementById('ex-reps-input').value=ex.reps;
-  document.getElementById('ex-weight-input').value=ex.weight;
+  document.getElementById('ex-sets-input').value=goal.sets;
+  document.getElementById('ex-reps-input').value=goal.reps;
+  document.getElementById('ex-weight-input').value=goal.weight;
   openModal('modal-exercise');
 }
 
@@ -966,15 +1023,43 @@ function renderModalLib() {
   if(!shown) container.innerHTML='<div style="padding:20px;text-align:center;color:var(--text-3);font-size:14px">Nenhum exercício encontrado</div>';
 }
 
+let pendingLibExId = null;
+
 function selectLibExercise(exId) {
+  // Abre passo 2: configurar meta antes de adicionar
   const libEx=EXERCISE_DB.find(e=>e.id===exId);
   if(!libEx||selectedDay===null) return;
+  pendingLibExId = exId;
+  document.getElementById('lib-config-exname').textContent = libEx.name;
+  document.getElementById('lib-config-exmeta').textContent = `${libEx.group} · ${libEx.equipment}`;
+  document.getElementById('lib-sets-input').value = 3;
+  document.getElementById('lib-reps-input').value = 12;
+  document.getElementById('lib-weight-input').value = 0;
+  document.getElementById('lib-step-search').style.display = 'none';
+  document.getElementById('lib-step-config').style.display = 'block';
+}
+
+function backToLibSearch() {
+  pendingLibExId = null;
+  document.getElementById('lib-step-search').style.display = 'block';
+  document.getElementById('lib-step-config').style.display = 'none';
+}
+
+function confirmLibExercise() {
+  const libEx=EXERCISE_DB.find(e=>e.id===pendingLibExId);
+  if(!libEx||selectedDay===null) return;
+  const sets=parseInt(document.getElementById('lib-sets-input').value)||3;
+  const reps=parseInt(document.getElementById('lib-reps-input').value)||12;
+  const weight=parseFloat(document.getElementById('lib-weight-input').value)||0;
   if(!state.days[selectedDay]) state.days[selectedDay]={name:'',exercises:[]};
   state.days[selectedDay].exercises.push({
-    id:uid(), libId:exId, name:libEx.name, group:libEx.group,
-    sets:4, reps:10, weight:0, logs:[]
+    id:uid(), libId:pendingLibExId, name:libEx.name, group:libEx.group,
+    goal:{ sets, reps, weight },
+    sets, reps, weight,
+    weekLogs:[]
   });
   save();
+  backToLibSearch();
   closeModal('modal-exercise');
   renderDayView();
   renderWeekStrip();
@@ -984,76 +1069,86 @@ function selectLibExercise(exId) {
 function saveCustomExercise() {
   const name=document.getElementById('ex-name-input').value.trim();
   const group=document.getElementById('ex-group-input').value;
-  const sets=parseInt(document.getElementById('ex-sets-input').value)||4;
-  const reps=parseInt(document.getElementById('ex-reps-input').value)||10;
+  const sets=parseInt(document.getElementById('ex-sets-input').value)||3;
+  const reps=parseInt(document.getElementById('ex-reps-input').value)||12;
   const weight=parseFloat(document.getElementById('ex-weight-input').value)||0;
   if(!name){ showToast('Informe o nome do exercício'); return; }
   if(!state.days[selectedDay]) state.days[selectedDay]={name:'',exercises:[]};
   if(editExerciseId) {
     const ex=state.days[selectedDay].exercises.find(e=>e.id===editExerciseId);
-    if(ex){ ex.name=name; ex.group=group; ex.sets=sets; ex.reps=reps; ex.weight=weight; }
+    if(ex){
+      ex.name=name; ex.group=group;
+      // Only update the goal, not the current working values
+      ex.goal={ sets, reps, weight };
+    }
   } else {
-    const libId=document.getElementById('ex-name-input').dataset.libId||null;
-    state.days[selectedDay].exercises.push({id:uid(),libId,name,group,sets,reps,weight,logs:[]});
+    state.days[selectedDay].exercises.push({
+      id:uid(), libId:null, name, group,
+      goal:{ sets, reps, weight },
+      sets, reps, weight,
+      weekLogs:[]
+    });
   }
   save();
   closeModal('modal-exercise');
   renderDayView();
   renderWeekStrip();
-  showToast(editExerciseId?'Exercício atualizado ✓':'Exercício adicionado ✓');
+  showToast(editExerciseId?'Meta atualizada ✓':'Exercício adicionado ✓');
 }
 
 function removeExercise(exId) {
-  if(!confirm('Remover este exercício?')) return;
-  const d=state.days[selectedDay];
-  if(!d) return;
-  d.exercises=d.exercises.filter(e=>e.id!==exId);
-  save(); renderDayView(); renderWeekStrip(); showToast('Exercício removido');
+  showConfirm('Remover este exercício?', ()=>{
+    const d=state.days[selectedDay];
+    if(!d) return;
+    d.exercises=d.exercises.filter(e=>e.id!==exId);
+    save(); renderDayView(); renderWeekStrip(); showToast('Exercício removido');
+  });
 }
 
-// ─── LOG TREINO ────────────────────────────────────────────────
-function openLog(exId) {
+// ─── EXERCISE VALUE STEPPERS ────────────────────────────────────
+function updateExValue(exId, field, delta) {
   const d=state.days[selectedDay];
   if(!d) return;
   const ex=d.exercises.find(e=>e.id===exId);
   if(!ex) return;
-  logExerciseId=exId;
-  document.getElementById('modal-log-exname').textContent=ex.name;
-  document.getElementById('modal-log-meta').textContent=`Meta: ${ex.sets}x${ex.reps} · Peso atual: ${ex.weight}kg`;
-  document.getElementById('log-weight').value=ex.weight;
-  document.getElementById('log-sets').value=ex.sets;
-  document.getElementById('log-reps').value=ex.reps;
-  document.getElementById('log-obs').value='';
-  openModal('modal-log');
+  const min = field==='weight' ? 0 : 1;
+  ex[field] = Math.max(min, parseFloat(ex[field]) + delta);
+  // Round weight to nearest 0.5
+  if(field==='weight') ex[field] = Math.round(ex[field]*2)/2;
+  save();
+  renderDayView();
 }
 
-function saveLog() {
-  const weight=parseFloat(document.getElementById('log-weight').value)||0;
-  const sets=parseInt(document.getElementById('log-sets').value)||0;
-  const reps=parseInt(document.getElementById('log-reps').value)||0;
-  const obs=document.getElementById('log-obs').value.trim();
+// ─── REGISTER WEEK ─────────────────────────────────────────────
+function registerWeek(exId) {
   const d=state.days[selectedDay];
-  const ex=d.exercises.find(e=>e.id===logExerciseId);
+  if(!d) return;
+  const ex=d.exercises.find(e=>e.id===exId);
   if(!ex) return;
-  if(!ex.logs) ex.logs=[];
-  ex.logs.push({date:today(),weight,sets,reps,obs});
-  // Atualiza peso atual mas mantém a meta de séries/reps intacta
-  // para que countConsecutiveWeeks possa comparar o registrado vs meta
-  ex.weight=weight;
-  // Só atualiza meta se o treino foi completo (atingiu a meta anterior)
-  // Isso preserva a meta original para a contagem das 3 semanas
-  const complete = sets >= ex.sets && reps >= ex.reps;
-  const weeks=countConsecutiveWeeks(ex.logs, ex);
-  save(); closeModal('modal-log'); renderDayView();
-  // Inicia o timer de descanso automaticamente
-  resetTimer();
-  toggleTimer();
-  if(weeks>=3) {
-    setTimeout(()=>showToast('🔥 3 semanas completas! Hora de aumentar a carga!'),500);
-  } else if(complete) {
-    showToast(`✅ Série completa! ${weeks}/3 semanas · Descanse ${formatTime(timerTotal)}`);
+  const goal = ex.goal || { sets: ex.sets, reps: ex.reps, weight: ex.weight };
+  const goalMet = parseInt(ex.sets) >= parseInt(goal.sets) &&
+                  parseInt(ex.reps) >= parseInt(goal.reps) &&
+                  parseFloat(ex.weight) >= parseFloat(goal.weight);
+  const doRegister = () => {
+    if(!ex.weekLogs) ex.weekLogs=[];
+    ex.weekLogs.push({ date: today(), sets: ex.sets, reps: ex.reps, weight: ex.weight });
+    const weeks = countConsecutiveWeeks(ex);
+    save();
+    renderDayView();
+    resetTimer();
+    toggleTimer();
+    if(weeks>=3) {
+      setTimeout(()=>showToast('🔥 3 semanas completas! Hora de aumentar a carga!'),500);
+    } else if(goalMet) {
+      showToast(`✅ Registrado! ${weeks}/3 semanas completas`);
+    } else {
+      showToast(`📝 Registrado abaixo da meta`);
+    }
+  };
+  if(!goalMet) {
+    showConfirm(`Abaixo da meta (${goal.sets}×${goal.reps} · ${goal.weight}kg). Registrar assim mesmo?`, doRegister);
   } else {
-    showToast(`📝 Registrado · Meta: ${ex.sets}x${ex.reps} (não conta semana)`);
+    doRegister();
   }
 }
 
@@ -1069,9 +1164,10 @@ function saveDayName() {
   save(); closeModal('modal-day'); renderDayView(); showToast('Dia atualizado ✓');
 }
 function clearDay() {
-  if(!confirm('Limpar todos os exercícios deste dia?')) return;
-  if(state.days[selectedDay]){ state.days[selectedDay].exercises=[]; state.days[selectedDay].name=''; }
-  save(); closeModal('modal-day'); renderDayView(); renderWeekStrip(); showToast('Dia limpo');
+  showConfirm('Limpar todos os exercícios deste dia?', ()=>{
+    if(state.days[selectedDay]){ state.days[selectedDay].exercises=[]; state.days[selectedDay].name=''; }
+    save(); closeModal('modal-day'); renderDayView(); renderWeekStrip(); showToast('Dia limpo');
+  });
 }
 
 // ─── HISTÓRICO ─────────────────────────────────────────────────
@@ -1082,12 +1178,13 @@ function renderHistory() {
   for(const [dayIdx,d] of Object.entries(state.days)) {
     if(!d.exercises) continue;
     for(const ex of d.exercises) {
-      if(!ex.logs||ex.logs.length===0) continue;
+      const logs = ex.weekLogs || ex.logs || [];
+      if(!logs.length) continue;
       found=true;
       const block=document.createElement('div');
       block.className='hist-ex-block';
       // Ordem crescente por data (mais antigo primeiro) para calcular diff
-      const sorted=[...ex.logs].sort((a,b)=>a.date.localeCompare(b.date));
+      const sorted=[...logs].sort((a,b)=>a.date.localeCompare(b.date));
       let rowsHtml='';
       // Inverte a exibição: mais recente no topo
       // (construiu em ordem crescente para calcular diff corretamente,
@@ -1121,7 +1218,7 @@ function renderHistory() {
           <div style="width:36px;height:36px;border-radius:8px;overflow:hidden;flex-shrink:0;background:var(--surface2);display:flex;align-items:center;justify-content:center">${iconHtml}</div>
           <div style="flex:1;min-width:0">
             <div style="font-weight:700;font-size:14px">${ex.name}</div>
-            <div style="font-size:12px;color:var(--text-2)">${dayName} · ${ex.logs.length} registro${ex.logs.length>1?'s':''}</div>
+            <div style="font-size:12px;color:var(--text-2)">${dayName} · ${logs.length} registro${logs.length>1?'s':''}</div>
           </div>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
@@ -1236,6 +1333,14 @@ function setTheme(t) {
   if(t==='auto') document.documentElement.removeAttribute('data-theme');
   else document.documentElement.setAttribute('data-theme',t);
   showToast(`Tema: ${t==='auto'?'Automático':t==='light'?'Claro':'Escuro'}`);
+}
+
+// ─── CONFIRM MODAL ────────────────────────────────────────────
+function showConfirm(msg, onOk) {
+  document.getElementById('modal-confirm-msg').textContent = msg;
+  const btn = document.getElementById('modal-confirm-ok');
+  btn.onclick = () => { closeModal('modal-confirm'); onOk(); };
+  openModal('modal-confirm');
 }
 
 // ─── TOAST ────────────────────────────────────────────────────
