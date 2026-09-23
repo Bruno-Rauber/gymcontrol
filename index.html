@@ -306,6 +306,13 @@ h1,h2,h3 { font-family: 'Sora', sans-serif; }
 .ex-register-btn:hover { border-color: var(--accent); color: var(--accent); }
 .ex-register-btn.goal-met { background: var(--accent); color: #0F1117; border-color: var(--accent); }
 
+/* Separador do top-bar */
+#top-bar-divider {
+  height: 1px; background: var(--border);
+  margin: 0; position: sticky; top: calc(38px + env(safe-area-inset-top, 0px) + 24px);
+  z-index: 9;
+}
+
 /* GIF detail modal */
 .gif-detail {
   width: 100%; max-width: 280px; height: 200px; object-fit: contain;
@@ -329,14 +336,12 @@ h1,h2,h3 { font-family: 'Sora', sans-serif; }
         <button class="timer-btn" onclick="adjustTimer(-15)" title="-15s">−</button>
         <button class="timer-btn accent" id="timer-play-btn" onclick="toggleTimer()">▶</button>
         <button class="timer-btn" onclick="resetTimer()" title="Resetar">↺</button>
+        <button class="timer-btn" id="timer-mute-btn" onclick="toggleTimerMute()" title="Silenciar alarme">🔔</button>
       </div>
       <button id="timer-preset" onclick="cyclePreset()" title="Trocar preset">1:30</button>
     </div>
-
-    <button class="icon-btn" onclick="openModal('modal-settings-quick')" title="Configurações">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-    </button>
   </div>
+  <div id="top-bar-divider"></div>
 
   <!-- SCREEN AREA -->
   <div id="screen-area">
@@ -507,8 +512,9 @@ h1,h2,h3 { font-family: 'Sora', sans-serif; }
         </button>
         <div id="lib-config-exname" style="font-family:'Sora',sans-serif;font-size:17px;font-weight:700;margin-bottom:4px"></div>
         <div id="lib-config-exmeta" style="font-size:12px;color:var(--text-2);margin-bottom:16px"></div>
-        <div style="background:var(--surface2);border-radius:10px;padding:12px 14px;margin-bottom:14px">
-          <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Defina sua meta</div>
+        <!-- Onde estou agora -->
+        <div style="background:var(--surface2);border-radius:10px;padding:12px 14px;margin-bottom:12px">
+          <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Onde estou agora</div>
           <div class="row-2">
             <div class="form-group" style="margin-bottom:0">
               <label>Séries</label>
@@ -520,8 +526,31 @@ h1,h2,h3 { font-family: 'Sora', sans-serif; }
             </div>
           </div>
           <div class="form-group" style="margin-top:10px;margin-bottom:0">
-            <label>Peso inicial (kg)</label>
+            <label>Peso (kg)</label>
             <input type="number" id="lib-weight-input" min="0" step="0.5" value="0">
+          </div>
+        </div>
+        <!-- Meta opcional -->
+        <div style="background:var(--surface2);border-radius:10px;padding:12px 14px;margin-bottom:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.6px">Meta <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></div>
+            <button type="button" id="lib-goal-toggle" onclick="toggleLibGoalSection()" style="font-size:11px;color:var(--accent);font-weight:700;background:none;border:none;cursor:pointer">+ Definir meta</button>
+          </div>
+          <div id="lib-goal-section" style="display:none">
+            <div class="row-2">
+              <div class="form-group" style="margin-bottom:0">
+                <label>Séries</label>
+                <input type="number" id="lib-goal-sets-input" placeholder="3" min="1" max="20">
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label>Repetições</label>
+                <input type="number" id="lib-goal-reps-input" placeholder="12" min="1" max="100">
+              </div>
+            </div>
+            <div class="form-group" style="margin-top:10px;margin-bottom:0">
+              <label>Peso (kg)</label>
+              <input type="number" id="lib-goal-weight-input" placeholder="0" min="0" step="0.5">
+            </div>
           </div>
         </div>
         <div style="display:flex;gap:8px">
@@ -545,20 +574,50 @@ h1,h2,h3 { font-family: 'Sora', sans-serif; }
           <option>Pernas</option><option>Glúteos</option><option>Panturrilha</option><option>Abdômen</option><option>Core</option>
         </select>
       </div>
-      <div class="row-2">
-        <div class="form-group">
-          <label>Séries</label>
-          <input type="number" id="ex-sets-input" placeholder="3" min="1" max="20" value="3">
+
+      <!-- Onde estou agora (obrigatório) -->
+      <div style="background:var(--surface2);border-radius:10px;padding:12px 14px;margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Onde estou agora</div>
+        <div class="row-2">
+          <div class="form-group" style="margin-bottom:0">
+            <label>Séries</label>
+            <input type="number" id="ex-sets-input" placeholder="3" min="1" max="20" value="3">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label>Repetições</label>
+            <input type="number" id="ex-reps-input" placeholder="12" min="1" max="100" value="12">
+          </div>
         </div>
-        <div class="form-group">
-          <label>Repetições</label>
-          <input type="number" id="ex-reps-input" placeholder="12" min="1" max="100" value="12">
+        <div class="form-group" style="margin-top:10px;margin-bottom:0">
+          <label>Peso (kg)</label>
+          <input type="number" id="ex-weight-input" placeholder="0" min="0" step="0.5" value="0">
         </div>
       </div>
-      <div class="form-group">
-        <label>Peso inicial (kg)</label>
-        <input type="number" id="ex-weight-input" placeholder="0" min="0" step="0.5" value="0">
+
+      <!-- Meta (opcional) -->
+      <div style="background:var(--surface2);border-radius:10px;padding:12px 14px;margin-bottom:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.6px">Meta <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></div>
+          <button type="button" id="ex-goal-toggle" onclick="toggleGoalSection()" style="font-size:11px;color:var(--accent);font-weight:700;background:none;border:none;cursor:pointer">+ Definir meta</button>
+        </div>
+        <div id="ex-goal-section" style="display:none">
+          <div class="row-2">
+            <div class="form-group" style="margin-bottom:0">
+              <label>Séries</label>
+              <input type="number" id="ex-goal-sets-input" placeholder="3" min="1" max="20">
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label>Repetições</label>
+              <input type="number" id="ex-goal-reps-input" placeholder="12" min="1" max="100">
+            </div>
+          </div>
+          <div class="form-group" style="margin-top:10px;margin-bottom:0">
+            <label>Peso (kg)</label>
+            <input type="number" id="ex-goal-weight-input" placeholder="0" min="0" step="0.5">
+          </div>
+        </div>
       </div>
+
       <div style="display:flex;gap:8px;margin-top:4px">
         <button class="btn-sm" style="flex:1" onclick="closeModal('modal-exercise')">Cancelar</button>
         <button class="btn-sm btn-primary" style="flex:1" onclick="saveCustomExercise()">Salvar</button>
@@ -782,10 +841,26 @@ function isoWeek(dateStr) {
   return `${y}-W${Math.ceil((((d-start)/86400000)+1)/7)}`;
 }
 // Conta semanas consecutivas em que o treino atingiu a meta
+function toggleGoalSection() {
+  const sec = document.getElementById('ex-goal-section');
+  const btn = document.getElementById('ex-goal-toggle');
+  const hidden = sec.style.display === 'none';
+  sec.style.display = hidden ? 'block' : 'none';
+  btn.textContent = hidden ? '− Remover meta' : '+ Definir meta';
+}
+
+function toggleLibGoalSection() {
+  const sec = document.getElementById('lib-goal-section');
+  const btn = document.getElementById('lib-goal-toggle');
+  const hidden = sec.style.display === 'none';
+  sec.style.display = hidden ? 'block' : 'none';
+  btn.textContent = hidden ? '− Remover meta' : '+ Definir meta';
+}
+
 function countConsecutiveWeeks(ex) {
   const logs = ex.weekLogs;
-  if(!logs || !logs.length) return 0;
-  const goal = ex.goal || { sets: ex.sets, reps: ex.reps, weight: ex.weight };
+  if(!logs || !logs.length || !ex.goal) return 0;
+  const goal = ex.goal;
 
   // Semanas em que o treino foi completo (atingiu a meta)
   const weeksComplete = [...new Set(
@@ -902,19 +977,21 @@ function renderDayView() {
   listEl.innerHTML='';
 
   for(const ex of d.exercises) {
-    const goal = ex.goal || { sets: ex.sets, reps: ex.reps, weight: ex.weight };
+    const goal = ex.goal || null;
     const weeks = countConsecutiveWeeks(ex);
     const isAlert = weeks>=3;
-    const goalMet = parseInt(ex.sets) >= parseInt(goal.sets) &&
-                    parseInt(ex.reps) >= parseInt(goal.reps) &&
-                    parseFloat(ex.weight) >= parseFloat(goal.weight);
+    const goalMet = goal && (
+      parseInt(ex.sets) >= parseInt(goal.sets) &&
+      parseInt(ex.reps) >= parseInt(goal.reps) &&
+      parseFloat(ex.weight) >= parseFloat(goal.weight)
+    );
     const card = document.createElement('div');
     card.className = 'ex-card' + (isAlert?' alert-card':'');
     const libEx = EXERCISE_DB.find(e=>e.id===ex.libId);
     const iconHtml = libEx ? exIconHtml(libEx,40) : `<span style="font-size:20px">💪</span>`;
 
     let progressHtml = '';
-    if(ex.weekLogs && ex.weekLogs.length>0) {
+    if(goal && ex.weekLogs && ex.weekLogs.length>0) {
       const wClass = weeks>=3?'w3':weeks>=2?'w2':weeks>=1?'w1':'';
       const weekLabel = weeks>0 ? `${weeks}/3 semanas completas` : 'Nenhuma semana completa';
       progressHtml = `<div class="progress-row">
@@ -924,6 +1001,10 @@ function renderDayView() {
       if(isAlert) progressHtml += `<div class="alert-badge">🔥 Hora de aumentar a carga!</div>`;
     }
 
+    const goalLine = goal
+      ? `<div style="font-size:11px;color:var(--text-3);margin-top:5px">Meta: ${goal.sets}×${goal.reps} · ${goal.weight}kg</div>`
+      : `<div style="font-size:11px;color:var(--text-3);margin-top:5px;font-style:italic">Sem meta definida</div>`;
+
     card.innerHTML = `
       <div class="ex-card-top">
         <div class="ex-icon">${iconHtml}</div>
@@ -932,7 +1013,7 @@ function renderDayView() {
           <div class="ex-meta">${ex.group||''}</div>
         </div>
         <div class="ex-actions">
-          <button class="ex-action-btn" onclick="openEditExercise('${ex.id}')" title="Editar meta">
+          <button class="ex-action-btn" onclick="openEditExercise('${ex.id}')" title="Editar exercício">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           </button>
           <button class="ex-action-btn" onclick="removeExercise('${ex.id}')" title="Remover" style="color:var(--danger)">
@@ -959,7 +1040,7 @@ function renderDayView() {
           <button class="ex-stepper-btn" onclick="updateExValue('${ex.id}','weight',0.5)">+</button>
         </div>
       </div>
-      <div style="font-size:11px;color:var(--text-3);margin-top:5px">Meta: ${goal.sets}×${goal.reps} · ${goal.weight}kg</div>
+      ${goalLine}
       ${progressHtml}
       <button class="ex-register-btn${goalMet?' goal-met':''}" onclick="registerWeek('${ex.id}')">✓ Registrar esta semana</button>`;
     listEl.appendChild(card);
@@ -971,6 +1052,22 @@ function openAddExercise() {
   if(selectedDay===null){ showToast('Selecione um dia primeiro'); return; }
   editExerciseId=null;
   document.getElementById('modal-ex-title').textContent='Adicionar Exercício';
+  // Reset custom tab form
+  document.getElementById('ex-name-input').value='';
+  document.getElementById('ex-sets-input').value='3';
+  document.getElementById('ex-reps-input').value='12';
+  document.getElementById('ex-weight-input').value='0';
+  document.getElementById('ex-goal-section').style.display='none';
+  document.getElementById('ex-goal-toggle').textContent='+ Definir meta';
+  document.getElementById('ex-goal-sets-input').value='';
+  document.getElementById('ex-goal-reps-input').value='';
+  document.getElementById('ex-goal-weight-input').value='';
+  // Reset lib goal section
+  document.getElementById('lib-goal-section').style.display='none';
+  document.getElementById('lib-goal-toggle').textContent='+ Definir meta';
+  document.getElementById('lib-goal-sets-input').value='';
+  document.getElementById('lib-goal-reps-input').value='';
+  document.getElementById('lib-goal-weight-input').value='';
   switchExTab('lib');
   openModal('modal-exercise');
 }
@@ -979,15 +1076,31 @@ function openEditExercise(exId) {
   const d=state.days[selectedDay];
   const ex=d.exercises.find(e=>e.id===exId);
   if(!ex) return;
-  const goal = ex.goal || { sets: ex.sets, reps: ex.reps, weight: ex.weight };
   editExerciseId=exId;
-  document.getElementById('modal-ex-title').textContent='Editar Meta';
+  document.getElementById('modal-ex-title').textContent='Editar Exercício';
   switchExTab('custom');
   document.getElementById('ex-name-input').value=ex.name;
   document.getElementById('ex-group-input').value=ex.group||'';
-  document.getElementById('ex-sets-input').value=goal.sets;
-  document.getElementById('ex-reps-input').value=goal.reps;
-  document.getElementById('ex-weight-input').value=goal.weight;
+  // Current values
+  document.getElementById('ex-sets-input').value=ex.sets;
+  document.getElementById('ex-reps-input').value=ex.reps;
+  document.getElementById('ex-weight-input').value=ex.weight;
+  // Goal section
+  const goalSec=document.getElementById('ex-goal-section');
+  const goalBtn=document.getElementById('ex-goal-toggle');
+  if(ex.goal) {
+    goalSec.style.display='block';
+    goalBtn.textContent='− Remover meta';
+    document.getElementById('ex-goal-sets-input').value=ex.goal.sets;
+    document.getElementById('ex-goal-reps-input').value=ex.goal.reps;
+    document.getElementById('ex-goal-weight-input').value=ex.goal.weight;
+  } else {
+    goalSec.style.display='none';
+    goalBtn.textContent='+ Definir meta';
+    document.getElementById('ex-goal-sets-input').value='';
+    document.getElementById('ex-goal-reps-input').value='';
+    document.getElementById('ex-goal-weight-input').value='';
+  }
   openModal('modal-exercise');
 }
 
@@ -1035,6 +1148,12 @@ function selectLibExercise(exId) {
   document.getElementById('lib-sets-input').value = 3;
   document.getElementById('lib-reps-input').value = 12;
   document.getElementById('lib-weight-input').value = 0;
+  // Reset goal section
+  document.getElementById('lib-goal-section').style.display='none';
+  document.getElementById('lib-goal-toggle').textContent='+ Definir meta';
+  document.getElementById('lib-goal-sets-input').value='';
+  document.getElementById('lib-goal-reps-input').value='';
+  document.getElementById('lib-goal-weight-input').value='';
   document.getElementById('lib-step-search').style.display = 'none';
   document.getElementById('lib-step-config').style.display = 'block';
 }
@@ -1051,10 +1170,19 @@ function confirmLibExercise() {
   const sets=parseInt(document.getElementById('lib-sets-input').value)||3;
   const reps=parseInt(document.getElementById('lib-reps-input').value)||12;
   const weight=parseFloat(document.getElementById('lib-weight-input').value)||0;
+  // Optional goal
+  const goalVisible = document.getElementById('lib-goal-section').style.display !== 'none';
+  let goal = null;
+  if(goalVisible) {
+    const gs=parseInt(document.getElementById('lib-goal-sets-input').value);
+    const gr=parseInt(document.getElementById('lib-goal-reps-input').value);
+    const gw=parseFloat(document.getElementById('lib-goal-weight-input').value);
+    if(gs||gr||gw) goal={ sets:gs||sets, reps:gr||reps, weight:gw||weight };
+  }
   if(!state.days[selectedDay]) state.days[selectedDay]={name:'',exercises:[]};
   state.days[selectedDay].exercises.push({
     id:uid(), libId:pendingLibExId, name:libEx.name, group:libEx.group,
-    goal:{ sets, reps, weight },
+    goal,
     sets, reps, weight,
     weekLogs:[]
   });
@@ -1073,18 +1201,25 @@ function saveCustomExercise() {
   const reps=parseInt(document.getElementById('ex-reps-input').value)||12;
   const weight=parseFloat(document.getElementById('ex-weight-input').value)||0;
   if(!name){ showToast('Informe o nome do exercício'); return; }
+  // Optional goal
+  const goalVisible = document.getElementById('ex-goal-section').style.display !== 'none';
+  let goal = null;
+  if(goalVisible) {
+    const gs=parseInt(document.getElementById('ex-goal-sets-input').value);
+    const gr=parseInt(document.getElementById('ex-goal-reps-input').value);
+    const gw=parseFloat(document.getElementById('ex-goal-weight-input').value);
+    if(gs||gr||gw) goal={ sets:gs||sets, reps:gr||reps, weight:gw||weight };
+  }
   if(!state.days[selectedDay]) state.days[selectedDay]={name:'',exercises:[]};
   if(editExerciseId) {
     const ex=state.days[selectedDay].exercises.find(e=>e.id===editExerciseId);
     if(ex){
-      ex.name=name; ex.group=group;
-      // Only update the goal, not the current working values
-      ex.goal={ sets, reps, weight };
+      ex.name=name; ex.group=group; ex.goal=goal;
     }
   } else {
     state.days[selectedDay].exercises.push({
       id:uid(), libId:null, name, group,
-      goal:{ sets, reps, weight },
+      goal,
       sets, reps, weight,
       weekLogs:[]
     });
@@ -1093,7 +1228,7 @@ function saveCustomExercise() {
   closeModal('modal-exercise');
   renderDayView();
   renderWeekStrip();
-  showToast(editExerciseId?'Meta atualizada ✓':'Exercício adicionado ✓');
+  showToast(editExerciseId?'Exercício atualizado ✓':'Exercício adicionado ✓');
 }
 
 function removeExercise(exId) {
@@ -1125,10 +1260,12 @@ function registerWeek(exId) {
   if(!d) return;
   const ex=d.exercises.find(e=>e.id===exId);
   if(!ex) return;
-  const goal = ex.goal || { sets: ex.sets, reps: ex.reps, weight: ex.weight };
-  const goalMet = parseInt(ex.sets) >= parseInt(goal.sets) &&
-                  parseInt(ex.reps) >= parseInt(goal.reps) &&
-                  parseFloat(ex.weight) >= parseFloat(goal.weight);
+  const goal = ex.goal || null;
+  const goalMet = goal && (
+    parseInt(ex.sets) >= parseInt(goal.sets) &&
+    parseInt(ex.reps) >= parseInt(goal.reps) &&
+    parseFloat(ex.weight) >= parseFloat(goal.weight)
+  );
   const doRegister = () => {
     if(!ex.weekLogs) ex.weekLogs=[];
     ex.weekLogs.push({ date: today(), sets: ex.sets, reps: ex.reps, weight: ex.weight });
@@ -1137,15 +1274,19 @@ function registerWeek(exId) {
     renderDayView();
     resetTimer();
     toggleTimer();
-    if(weeks>=3) {
-      setTimeout(()=>showToast('🔥 3 semanas completas! Hora de aumentar a carga!'),500);
-    } else if(goalMet) {
-      showToast(`✅ Registrado! ${weeks}/3 semanas completas`);
+    if(goal) {
+      if(weeks>=3) {
+        setTimeout(()=>showToast('🔥 3 semanas completas! Hora de aumentar a carga!'),500);
+      } else if(goalMet) {
+        showToast(`✅ Registrado! ${weeks}/3 semanas completas`);
+      } else {
+        showToast(`📝 Registrado abaixo da meta`);
+      }
     } else {
-      showToast(`📝 Registrado abaixo da meta`);
+      showToast('✅ Semana registrada');
     }
   };
-  if(!goalMet) {
+  if(goal && !goalMet) {
     showConfirm(`Abaixo da meta (${goal.sets}×${goal.reps} · ${goal.weight}kg). Registrar assim mesmo?`, doRegister);
   } else {
     doRegister();
@@ -1360,6 +1501,7 @@ let timerLeft    = 90;   // segundos restantes
 let timerRunning = false;
 let timerInterval= null;
 let timerBeepCtx = null;
+let timerMuted = false;
 
 function getTimerForDay() {
   // Retorna o tempo salvo para o dia selecionado, ou o padrão
@@ -1455,7 +1597,14 @@ function cyclePreset() {
   showToast(`Tempo salvo: ${formatTime(timerTotal)}`);
 }
 
+function toggleTimerMute() {
+  timerMuted = !timerMuted;
+  const btn = document.getElementById('timer-mute-btn');
+  if(btn) btn.textContent = timerMuted ? '🔕' : '🔔';
+}
+
 function playBeep() {
+  if(timerMuted) return;
   try {
     if(!timerBeepCtx) timerBeepCtx=new(window.AudioContext||window.webkitAudioContext)();
     const ctx=timerBeepCtx;
