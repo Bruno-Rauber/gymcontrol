@@ -240,6 +240,56 @@ h1,h2,h3 { font-family: 'Sora', sans-serif; }
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+/* ── TIMER DE DESCANSO ── */
+#rest-timer {
+  position: fixed;
+  bottom: calc(var(--nav-h) + 16px + env(safe-area-inset-bottom,0px));
+  left: 20px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  padding: 8px 12px;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  z-index: 15;
+  box-shadow: 0 4px 16px rgba(0,0,0,.3);
+  transition: border-color .2s;
+  min-width: 160px;
+}
+#rest-timer.active { border-color: var(--accent); }
+#rest-timer.finished { border-color: var(--warn); animation: pulse-warn .6s ease infinite alternate; }
+@keyframes pulse-warn { from { border-color: var(--warn); } to { border-color: transparent; } }
+#timer-display {
+  font-family: 'Sora', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+  min-width: 52px;
+  text-align: center;
+  cursor: pointer;
+}
+#rest-timer.finished #timer-display { color: var(--warn); }
+#timer-btns { display: flex; gap: 4px; }
+.timer-btn {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: var(--surface2); color: var(--text-2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700;
+  border: 1px solid var(--border);
+  transition: all .15s;
+}
+.timer-btn:hover { background: var(--border); color: var(--text); }
+.timer-btn.accent { background: var(--accent); color: #0F1117; border-color: var(--accent); }
+#timer-preset {
+  font-size: 11px; color: var(--text-3); cursor: pointer;
+  padding: 2px 6px; border-radius: 6px; border: 1px solid var(--border);
+  background: var(--surface2); white-space: nowrap;
+  transition: all .15s;
+}
+#timer-preset:hover { border-color: var(--accent); color: var(--accent); }
+
 /* GIF detail modal */
 .gif-detail {
   width: 100%; max-width: 280px; height: 200px; object-fit: contain;
@@ -376,6 +426,17 @@ h1,h2,h3 { font-family: 'Sora', sans-serif; }
     </div>
 
   </div><!-- /screen-area -->
+
+  <!-- TIMER DE DESCANSO -->
+  <div id="rest-timer">
+    <div id="timer-display" onclick="toggleTimer()" title="Iniciar/Pausar">1:30</div>
+    <div id="timer-btns">
+      <button class="timer-btn" onclick="adjustTimer(-15)" title="-15s">-</button>
+      <button class="timer-btn accent" id="timer-play-btn" onclick="toggleTimer()" title="Iniciar/Pausar">▶</button>
+      <button class="timer-btn" onclick="resetTimer()" title="Resetar">↺</button>
+    </div>
+    <button id="timer-preset" onclick="cyclePreset()" title="Trocar preset">⏱ salvar</button>
+  </div>
 
   <!-- FAB -->
   <button id="fab" onclick="openAddExercise()" title="Adicionar exercício" style="display:none">+</button>
@@ -677,19 +738,32 @@ function isoWeek(dateStr) {
   const start = new Date(y,0,1);
   return `${y}-W${Math.ceil((((d-start)/86400000)+1)/7)}`;
 }
-function countConsecutiveWeeks(logs, currentWeight) {
+// Conta semanas consecutivas em que o treino foi "completo":
+// mesmo peso E séries >= meta E reps >= meta.
+// Só aí faz sentido sugerir aumento de carga.
+function countConsecutiveWeeks(logs, ex) {
   if(!logs || !logs.length) return 0;
-  const weeksWithWeight = [...new Set(
-    logs.filter(l=>parseFloat(l.weight)===parseFloat(currentWeight))
-        .map(l=>isoWeek(l.date))
+  const targetSets = ex.sets;
+  const targetReps = ex.reps;
+  const currentWeight = parseFloat(ex.weight);
+
+  // Semanas em que o treino foi completo no peso atual
+  const weeksComplete = [...new Set(
+    logs.filter(l =>
+      parseFloat(l.weight) === currentWeight &&
+      parseInt(l.sets)     >= targetSets &&
+      parseInt(l.reps)     >= targetReps
+    ).map(l => isoWeek(l.date))
   )];
-  if(!weeksWithWeight.length) return 0;
-  weeksWithWeight.sort();
+
+  if(!weeksComplete.length) return 0;
+  weeksComplete.sort();
+
   const currentW = isoWeek(today());
   let count = 0;
   let check = currentW;
-  for(let i=weeksWithWeight.length-1;i>=0;i--) {
-    if(weeksWithWeight[i]===check) { count++; check=prevWeek(check); }
+  for(let i=weeksComplete.length-1;i>=0;i--) {
+    if(weeksComplete[i]===check) { count++; check=prevWeek(check); }
     else break;
   }
   return count;
@@ -710,7 +784,9 @@ function switchScreen(name, btn) {
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('screen-'+name).classList.add('active');
   if(btn) btn.classList.add('active');
-  document.getElementById('fab').style.display = name==='treinos' ? 'flex' : 'none';
+  const inTreinos = name==='treinos';
+  document.getElementById('fab').style.display = inTreinos ? 'flex' : 'none';
+  document.getElementById('rest-timer').style.display = inTreinos ? 'flex' : 'none';
   if(name==='historico') renderHistory();
   if(name==='biblioteca') renderLibrary();
 }
@@ -745,6 +821,12 @@ function selectDay(dayIdx) {
   selectedDay = dayIdx;
   renderWeekStrip();
   renderDayView();
+  // Garante que FAB e timer aparecem na aba Treinos
+  const inTreinos = document.getElementById('screen-treinos').classList.contains('active');
+  document.getElementById('fab').style.display = inTreinos ? 'flex' : 'none';
+  document.getElementById('rest-timer').style.display = inTreinos ? 'flex' : 'none';
+  // Carrega o tempo salvo para este dia
+  initTimer();
 }
 
 // ─── DAY VIEW ──────────────────────────────────────────────────
@@ -779,7 +861,7 @@ function renderDayView() {
   listEl.innerHTML='';
 
   for(const ex of d.exercises) {
-    const weeks = countConsecutiveWeeks(ex.logs, ex.weight);
+    const weeks = countConsecutiveWeeks(ex.logs, ex);
     const isAlert = weeks>=3;
     const card = document.createElement('div');
     card.className = 'ex-card' + (isAlert?' alert-card':'');
@@ -787,12 +869,22 @@ function renderDayView() {
     const iconHtml = libEx ? exIconHtml(libEx,40) : `<span style="font-size:20px">💪</span>`;
     let progressHtml = '';
     if(ex.logs && ex.logs.length>0) {
+      // Último registro para indicar se o treino foi completo
+      const lastLog = [...ex.logs].sort((a,b)=>b.date.localeCompare(a.date))[0];
+      const lastComplete = parseInt(lastLog.sets) >= ex.sets && parseInt(lastLog.reps) >= ex.reps
+                           && parseFloat(lastLog.weight) === parseFloat(ex.weight);
       const wClass = weeks>=3?'w3':weeks>=2?'w2':'w1';
+      const weekLabel = weeks>0
+        ? `${weeks}/3 semanas completas`
+        : lastComplete ? '1ª semana em andamento' : 'Meta ainda não atingida';
       progressHtml = `<div class="progress-row">
-        <div class="progress-bar"><div class="progress-fill ${wClass}"></div></div>
-        <span class="progress-weeks">${weeks}/3 semanas</span>
+        <div class="progress-bar"><div class="progress-fill ${wClass}" style="${weeks===0?'width:0%':''}"></div></div>
+        <span class="progress-weeks">${weekLabel}</span>
       </div>`;
-      if(isAlert) progressHtml += `<div class="alert-badge">🔥 Hora de aumentar o peso!</div>`;
+      if(!lastComplete && weeks===0) {
+        progressHtml += `<div class="alert-badge" style="color:var(--text-3);background:rgba(90,96,117,.12)">📝 Última série incompleta · Meta: ${ex.sets}x${ex.reps}</div>`;
+      }
+      if(isAlert) progressHtml += `<div class="alert-badge">🔥 Hora de aumentar a carga!</div>`;
     }
     card.innerHTML = `
       <div class="ex-card-top">
@@ -945,11 +1037,24 @@ function saveLog() {
   if(!ex) return;
   if(!ex.logs) ex.logs=[];
   ex.logs.push({date:today(),weight,sets,reps,obs});
-  ex.weight=weight; ex.sets=sets; ex.reps=reps;
-  const weeks=countConsecutiveWeeks(ex.logs,weight);
+  // Atualiza peso atual mas mantém a meta de séries/reps intacta
+  // para que countConsecutiveWeeks possa comparar o registrado vs meta
+  ex.weight=weight;
+  // Só atualiza meta se o treino foi completo (atingiu a meta anterior)
+  // Isso preserva a meta original para a contagem das 3 semanas
+  const complete = sets >= ex.sets && reps >= ex.reps;
+  const weeks=countConsecutiveWeeks(ex.logs, ex);
   save(); closeModal('modal-log'); renderDayView();
-  if(weeks>=3) setTimeout(()=>showToast('🔥 3 semanas nesse peso! Hora de aumentar!'),400);
-  else showToast(`Treino registrado! ${weeks}/3 semanas`);
+  // Inicia o timer de descanso automaticamente
+  resetTimer();
+  toggleTimer();
+  if(weeks>=3) {
+    setTimeout(()=>showToast('🔥 3 semanas completas! Hora de aumentar a carga!'),500);
+  } else if(complete) {
+    showToast(`✅ Série completa! ${weeks}/3 semanas · Descanse ${formatTime(timerTotal)}`);
+  } else {
+    showToast(`📝 Registrado · Meta: ${ex.sets}x${ex.reps} (não conta semana)`);
+  }
 }
 
 // ─── DAY CONFIG ────────────────────────────────────────────────
@@ -981,23 +1086,32 @@ function renderHistory() {
       found=true;
       const block=document.createElement('div');
       block.className='hist-ex-block';
-      const sorted=[...ex.logs].sort((a,b)=>b.date.localeCompare(a.date));
+      // Ordem crescente por data (mais antigo primeiro) para calcular diff
+      const sorted=[...ex.logs].sort((a,b)=>a.date.localeCompare(b.date));
       let rowsHtml='';
-      let prevWeight=null;
-      for(let i=sorted.length-1;i>=0;i--) {
-        const log=sorted[i];
-        let changeHtml='';
-        if(prevWeight!==null) {
-          const diff=parseFloat(log.weight)-prevWeight;
-          if(diff>0) changeHtml=`<span class="hist-change">▲ +${diff}kg</span>`;
-          else if(diff<0) changeHtml=`<span class="hist-change down">▼ ${diff}kg</span>`;
+      // Inverte a exibição: mais recente no topo
+      // (construiu em ordem crescente para calcular diff corretamente,
+      //  agora revertemos o array de rows para exibir)
+      const rowsArr=[];
+      let prevW2=null;
+      for(const log of sorted) {
+        let ch='';
+        if(prevW2!==null){
+          const d2=parseFloat(log.weight)-prevW2;
+          if(d2>0) ch=`<span class="hist-change">▲ +${d2}kg</span>`;
+          else if(d2<0) ch=`<span class="hist-change down">▼ ${Math.abs(d2).toFixed(1)}kg</span>`;
         }
-        prevWeight=parseFloat(log.weight);
-        rowsHtml=`<div class="hist-row">
+        prevW2=parseFloat(log.weight);
+        rowsArr.push({log,ch});
+      }
+      rowsHtml='';
+      for(let i=rowsArr.length-1;i>=0;i--) {
+        const {log,ch}=rowsArr[i];
+        rowsHtml+=`<div class="hist-row">
           <span class="hist-date">${formatDate(log.date)}</span>
           <span class="hist-data">${log.sets}x${log.reps} · ${log.weight}kg</span>
-          ${changeHtml}
-        </div>`+rowsHtml;
+          ${ch}
+        </div>`;
       }
       const libEx=EXERCISE_DB.find(e=>e.id===ex.libId);
       const iconHtml=libEx?exIconHtml(libEx,36):`<span style="font-size:18px">💪</span>`;
@@ -1131,6 +1245,126 @@ function showToast(msg) {
   t.textContent=msg; t.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ─── TIMER DE DESCANSO ────────────────────────────────────────
+// Presets padrão (segundos)
+const TIMER_PRESETS = [60, 90, 120, 180];
+let timerTotal   = 90;   // duração configurada (segundos)
+let timerLeft    = 90;   // segundos restantes
+let timerRunning = false;
+let timerInterval= null;
+let timerBeepCtx = null;
+
+function getTimerForDay() {
+  // Retorna o tempo salvo para o dia selecionado, ou o padrão
+  if(selectedDay!==null && state.days[selectedDay] && state.days[selectedDay].restTimer) {
+    return state.days[selectedDay].restTimer;
+  }
+  return timerTotal;
+}
+
+function saveTimerForDay(secs) {
+  if(selectedDay===null) return;
+  if(!state.days[selectedDay]) state.days[selectedDay]={name:'',exercises:[]};
+  state.days[selectedDay].restTimer = secs;
+  save();
+}
+
+function initTimer() {
+  timerTotal = getTimerForDay();
+  timerLeft  = timerTotal;
+  timerRunning = false;
+  updateTimerDisplay();
+}
+
+function formatTime(s) {
+  const m=Math.floor(s/60), r=s%60;
+  return `${m}:${r.toString().padStart(2,'0')}`;
+}
+
+function updateTimerDisplay() {
+  const el = document.getElementById('timer-display');
+  const timerEl = document.getElementById('rest-timer');
+  const playBtn = document.getElementById('timer-play-btn');
+  if(!el) return;
+  el.textContent = formatTime(timerLeft);
+  if(timerLeft===0) {
+    timerEl.classList.add('finished');
+    timerEl.classList.remove('active');
+    playBtn.textContent='↺';
+  } else if(timerRunning) {
+    timerEl.classList.add('active');
+    timerEl.classList.remove('finished');
+    playBtn.textContent='⏸';
+  } else {
+    timerEl.classList.remove('active','finished');
+    playBtn.textContent='▶';
+  }
+  // Label do preset
+  document.getElementById('timer-preset').textContent=`⏱ ${formatTime(timerTotal)}`;
+}
+
+function toggleTimer() {
+  if(timerLeft===0) { resetTimer(); return; }
+  if(timerRunning) {
+    clearInterval(timerInterval);
+    timerRunning=false;
+  } else {
+    timerRunning=true;
+    timerInterval=setInterval(()=>{
+      if(timerLeft>0) { timerLeft--; updateTimerDisplay(); }
+      if(timerLeft===0) {
+        clearInterval(timerInterval); timerRunning=false;
+        updateTimerDisplay();
+        playBeep();
+        showToast('⏰ Descanso concluído! Próxima série!');
+      }
+    },1000);
+  }
+  updateTimerDisplay();
+}
+
+function resetTimer() {
+  clearInterval(timerInterval);
+  timerRunning=false;
+  timerLeft=timerTotal;
+  updateTimerDisplay();
+}
+
+function adjustTimer(delta) {
+  clearInterval(timerInterval); timerRunning=false;
+  timerTotal=Math.max(10, timerTotal+delta);
+  timerLeft=timerTotal;
+  saveTimerForDay(timerTotal);
+  updateTimerDisplay();
+}
+
+function cyclePreset() {
+  clearInterval(timerInterval); timerRunning=false;
+  const idx=TIMER_PRESETS.indexOf(timerTotal);
+  timerTotal=TIMER_PRESETS[(idx+1)%TIMER_PRESETS.length];
+  timerLeft=timerTotal;
+  saveTimerForDay(timerTotal);
+  updateTimerDisplay();
+  showToast(`Tempo salvo: ${formatTime(timerTotal)}`);
+}
+
+function playBeep() {
+  try {
+    if(!timerBeepCtx) timerBeepCtx=new(window.AudioContext||window.webkitAudioContext)();
+    const ctx=timerBeepCtx;
+    [0,150,300].forEach(delay=>{
+      const osc=ctx.createOscillator();
+      const gain=ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value=880;
+      gain.gain.setValueAtTime(.3,ctx.currentTime+delay/1000);
+      gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+delay/1000+.15);
+      osc.start(ctx.currentTime+delay/1000);
+      osc.stop(ctx.currentTime+delay/1000+.15);
+    });
+  } catch(e){}
 }
 
 // ─── INIT ──────────────────────────────────────────────────────
