@@ -379,12 +379,6 @@ h1,h2,h3 { font-family: 'Sora', sans-serif; }
   z-index: 9;
 }
 
-/* GIF detail modal */
-.gif-detail {
-  width: 100%; max-width: 280px; height: 200px; object-fit: contain;
-  border-radius: 12px; margin: 0 auto 16px; display: block;
-  background: var(--surface2);
-}
 </style>
 </head>
 <body>
@@ -790,112 +784,105 @@ h1,h2,h3 { font-family: 'Sora', sans-serif; }
 <!-- ══════════════════════════ JAVASCRIPT ══════════════════════════ -->
 <script>
 // ─── BANCO DE EXERCÍCIOS ───────────────────────────────────────
-// GIFs via Tenor (media.tenor.com — embed permitido)
+// video: link de vídeo demonstrativo (preencher depois) — abre em nova aba
 const EXERCISE_DB = [
   // PEITO
   { id:'e001', name:'Supino Reto', group:'Peito', equipment:'Barra',
     tips:'Desça a barra até o peito, cotovelos a ~75°. Escápulas retraídas, pés no chão.',
-    gif:'https://media1.tenor.com/m/z5kZSUIBouoAAAAC/bench-press-adam.gif', emoji:'🏋️' },
+    video:'', emoji:'🏋️' },
   { id:'e002', name:'Supino Inclinado', group:'Peito', equipment:'Halteres',
     tips:'Incline o banco ~30-45°, foco na parte superior do peitoral.',
-    gif:'https://media1.tenor.com/m/mXQJeQyJCi4AAAAC/bench-press-regular-bench-press.gif', emoji:'🏋️' },
+    video:'', emoji:'🏋️' },
   { id:'e003', name:'Crucifixo', group:'Peito', equipment:'Halteres',
     tips:'Braços levemente dobrados, arc amplo e controlado. Sinta o alongamento.',
-    gif:'https://media1.tenor.com/m/oJXOnsC72qMAAAAC/crussifixo-no-banco-com-halteres.gif', emoji:'🦅' },
+    video:'', emoji:'🦅' },
   { id:'e004', name:'Crossover', group:'Peito', equipment:'Cabo',
     tips:'Puxe em arco cruzando os braços na frente do corpo.',
-    gif:'https://media.tenor.com/ClpO4TlEYhQAAAAM/pulling-upasana-kamineni-konidela.gif', emoji:'✖️' },
+    video:'', emoji:'✖️' },
   { id:'e005', name:'Flexão de Braço', group:'Peito', equipment:'Peso Corporal',
     tips:'Corpo reto, desça até perto do chão. Cotovelos a 45° do tronco.',
-    gif:'https://media1.tenor.com/m/0PnchcCC_0QAAAAC/push-up.gif', emoji:'💪' },
+    video:'', emoji:'💪' },
   // COSTAS
   { id:'e006', name:'Puxada na Frente', group:'Costas', equipment:'Cabo',
     tips:'Puxe a barra até o peito, cotovelos apontando para baixo. Escápulas juntas.',
-    gif:'https://media.tenor.com/lfeuh7ni4cIAAAAM/back-weights.gif', emoji:'⬇️' },
+    video:'', emoji:'⬇️' },
   { id:'e007', name:'Remada Curvada', group:'Costas', equipment:'Barra',
     tips:'Costas paralelas ao chão, puxe em direção ao abdômen. Core ativado.',
-    gif:'https://media.tenor.com/grXeyhBT744AAAAM/bb-under-hand-row.gif', emoji:'🚣' },
+    video:'', emoji:'🚣' },
   { id:'e008', name:'Remada Unilateral', group:'Costas', equipment:'Haltere',
     tips:'Apoio no banco, puxe o haltere até a cintura. Cotovelo rente ao corpo.',
-    gif:'https://media1.tenor.com/m/ZA7d-cdoYEIAAAAC/bentoverrows.gif', emoji:'🚣' },
+    video:'', emoji:'🚣' },
   { id:'e009', name:'Pulldown com Cabo', group:'Costas', equipment:'Cabo',
     tips:'Pegada neutra ou supinada, foco no grande dorsal. Puxe até o queixo.',
-    gif:'https://media1.tenor.com/m/qtzW-FmnBOQAAAAC/lat-pull-down-machine.gif', emoji:'⬇️' },
+    video:'', emoji:'⬇️' },
   { id:'e010', name:'Barra Fixa', group:'Costas', equipment:'Peso Corporal',
     tips:'Pegada pronada na largura dos ombros. Puxe até o queixo acima da barra.',
-    gif:'https://media1.tenor.com/m/4AhxBOQgUDcAAAAC/malek-malek-04.gif', emoji:'🏋️' },
+    video:'', emoji:'🏋️' },
   // OMBROS
   { id:'e011', name:'Desenvolvimento Militar', group:'Ombros', equipment:'Barra',
     tips:'Empurre a barra acima da cabeça sem arquear a lombar. Core firme.',
-    gif:'https://media1.tenor.com/m/vFJSvh8AvhAAAAAC/a1.gif', emoji:'🎖️' },
+    video:'', emoji:'🎖️' },
   { id:'e012', name:'Elevação Lateral', group:'Ombros', equipment:'Halteres',
     tips:'Levante os braços até a altura dos ombros, cotovelos levemente dobrados.',
-    gif:'https://media1.tenor.com/m/cy46UbnfUrkAAAAC/eleva%C3%A7%C3%A3o-lateral-hateres.gif', emoji:'↔️' },
+    video:'', emoji:'↔️' },
   { id:'e013', name:'Elevação Frontal', group:'Ombros', equipment:'Halteres',
     tips:'Um braço de cada vez, levante até a altura do ombro. Sem balanço.',
-    gif:'https://media1.tenor.com/m/vFLnrUUJtRQAAAAC/dumbells-front-raise.gif', emoji:'⬆️' },
+    video:'', emoji:'⬆️' },
   // BÍCEPS
   { id:'e014', name:'Rosca Direta', group:'Bíceps', equipment:'Barra/Haltere',
     tips:'Cotovelos fixos ao lado do corpo, supine o antebraço no topo.',
-    gif:'https://media1.tenor.com/m/xQJ4fZr6spUAAAAC/bicep-curl-biceps-curl.gif', emoji:'💪' },
+    video:'', emoji:'💪' },
   { id:'e015', name:'Rosca Alternada', group:'Bíceps', equipment:'Halteres',
     tips:'Alterne os braços, gire o punho ao subir. Cotovelos estáticos.',
-    gif:'https://media1.tenor.com/m/ZvgyGxb5J_8AAAAC/lifting-dumbell-kevin-clevenger.gif', emoji:'💪' },
+    video:'', emoji:'💪' },
   { id:'e016', name:'Rosca Concentrada', group:'Bíceps', equipment:'Haltere',
     tips:'Apoie o cotovelo na coxa, isole o movimento completamente.',
-    gif:'https://media1.tenor.com/m/jaX3EUxaQGkAAAAC/rosca-concentrada-no-banco.gif', emoji:'🎯' },
+    video:'', emoji:'🎯' },
   // TRÍCEPS
   { id:'e017', name:'Tríceps Pulley', group:'Tríceps', equipment:'Cabo',
     tips:'Cotovelos fixos ao lado do corpo, estenda completamente.',
-    gif:'https://media1.tenor.com/m/GpvUxIvyOZ0AAAAC/tr%C3%ADceps-pulley-corda.gif', emoji:'⬇️' },
+    video:'', emoji:'⬇️' },
   { id:'e018', name:'Testa com Barra', group:'Tríceps', equipment:'Barra',
     tips:'Desça a barra até a testa, cotovelos apontados para cima.',
-    gif:'https://media1.tenor.com/m/y_Z2oZ35sP8AAAAd/skull-crusher-dumbells.gif', emoji:'🧠' },
+    video:'', emoji:'🧠' },
   { id:'e019', name:'Mergulho (Dips)', group:'Tríceps', equipment:'Paralelas',
     tips:'Incline levemente para frente, desça até 90° nos cotovelos.',
-    gif:'https://media1.tenor.com/m/iGyfarCUXe8AAAAC/tr%C3%ADceps-mergulho.gif', emoji:'⬇️' },
+    video:'', emoji:'⬇️' },
   // PERNAS
   { id:'e020', name:'Agachamento Livre', group:'Pernas', equipment:'Barra',
     tips:'Pés na largura dos ombros, joelhos na direção dos pés. Desça com a lombar.',
-    gif:'https://media1.tenor.com/m/Re3T3B66V9UAAAAd/barbellsquats-gymexercisesmen.gif', emoji:'🏋️' },
+    video:'', emoji:'🏋️' },
   { id:'e021', name:'Leg Press', group:'Pernas', equipment:'Máquina',
     tips:'Pés na largura dos ombros, desça até 90° nos joelhos.',
-    gif:'https://media1.tenor.com/m/yBaS_oBgidsAAAAC/gym.gif', emoji:'🦵' },
+    video:'', emoji:'🦵' },
   { id:'e022', name:'Cadeira Extensora', group:'Pernas', equipment:'Máquina',
     tips:'Estenda completamente, controle na descida. Quadríceps ativado.',
-    gif:'https://media1.tenor.com/m/jdljbWy_mdAAAAAC/leg-extension.gif', emoji:'🦵' },
+    video:'', emoji:'🦵' },
   { id:'e023', name:'Mesa Flexora', group:'Pernas', equipment:'Máquina',
     tips:'Flex total dos isquios, controle na volta. Não deixe o quadril subir.',
-    gif:'https://media1.tenor.com/m/YtkG_5GRhjcAAAAC/leg-curl.gif', emoji:'🦵' },
+    video:'', emoji:'🦵' },
   { id:'e024', name:'Stiff', group:'Pernas', equipment:'Barra/Haltere',
     tips:'Costas retas, sinta o alongamento dos isquiotibiais. Joelhos levemente dobrados.',
-    gif:'https://media1.tenor.com/m/VSY6K8y4zEIAAAAC/romanian-deadlift-exercise.gif', emoji:'🧘' },
+    video:'', emoji:'🧘' },
   // GLÚTEOS
   { id:'e025', name:'Hip Thrust', group:'Glúteos', equipment:'Barra',
     tips:'Apoio nas escápulas, empurre o quadril para cima. Aperte o glúteo no topo.',
-    gif:'https://media1.tenor.com/m/HYF_04fu5rMAAAAC/hip-barbell.gif', emoji:'🍑' },
+    video:'', emoji:'🍑' },
   // PANTURRILHA
   { id:'e026', name:'Panturrilha em Pé', group:'Panturrilha', equipment:'Máquina/Peso',
     tips:'Eleve o calcanhar totalmente, segure 1s no topo. Amplitude total.',
-    gif:'https://media1.tenor.com/m/JYsGi3a3Y_4AAAAC/single-leg-calf-raise.gif', emoji:'🦶' },
+    video:'', emoji:'🦶' },
   // ABDÔMEN
   { id:'e027', name:'Abdominal Crunch', group:'Abdômen', equipment:'Peso Corporal',
     tips:'Não force o pescoço, contraia o core no topo. Lombar no chão.',
-    gif:'https://media1.tenor.com/m/8qDTgIQE_PcAAAAC/vvbvcx.gif', emoji:'🔥' },
+    video:'', emoji:'🔥' },
   { id:'e028', name:'Prancha', group:'Core', equipment:'Peso Corporal',
     tips:'Corpo reto como uma tábua, não deixe o quadril cair. Respire.',
-    gif:'https://media1.tenor.com/m/7O6JimICFLoAAAAC/plank.gif', emoji:'🧘' },
+    video:'', emoji:'🧘' },
 ];
 
-// Helper: retorna HTML do ícone (img com fallback emoji)
+// Helper: ícone do exercício (emoji)
 function exIconHtml(ex, size=44) {
-  if(ex.gif) {
-    return `<img src="${ex.gif}" alt="${ex.name}" width="${size}" height="${size}"
-      style="object-fit:cover;border-radius:8px;"
-      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-      loading="lazy">
-      <span class="ex-icon-fallback" style="display:none;font-size:${Math.floor(size*0.5)}px">${ex.emoji||'💪'}</span>`;
-  }
   return `<span class="ex-icon-fallback" style="font-size:${Math.floor(size*0.5)}px">${ex.emoji||'💪'}</span>`;
 }
 
@@ -1004,8 +991,7 @@ function switchScreen(name, btn) {
   if(btn) btn.classList.add('active');
   const inTreinos = name==='treinos';
   document.getElementById('fab').style.display = inTreinos ? 'flex' : 'none';
-  document.getElementById('timer-chip').style.display = inTreinos ? 'flex' : 'none';
-  if(!inTreinos) { clearInterval(timerInterval); timerRunning=false; }
+  document.getElementById('timer-chip').style.display = 'flex';
   if(name==='historico') renderHistory();
   if(name==='biblioteca') renderLibrary();
 }
@@ -1043,7 +1029,7 @@ function selectDay(dayIdx) {
   // Garante que FAB e timer aparecem na aba Treinos
   const inTreinos = document.getElementById('screen-treinos').classList.contains('active');
   document.getElementById('fab').style.display = inTreinos ? 'flex' : 'none';
-  document.getElementById('timer-chip').style.display = inTreinos ? 'flex' : 'none';
+  document.getElementById('timer-chip').style.display = 'flex';
   // Carrega o tempo salvo para este dia
   initTimer();
 }
@@ -1375,7 +1361,6 @@ function registerWeek(exId) {
     const weeks = countConsecutiveWeeks(ex);
     save();
     renderDayView();
-    resetTimer();
     if(goal) {
       if(weeks>=3) {
         setTimeout(()=>showToast('🔥 3 semanas completas! Hora de aumentar a carga!'),500);
@@ -1508,9 +1493,8 @@ function openExDetail(exId) {
   const ex=EXERCISE_DB.find(e=>e.id===exId);
   if(!ex) return;
   const content=document.getElementById('modal-exdetail-content');
-  const gifHtml=ex.gif?`<img src="${ex.gif}" alt="${ex.name}" class="gif-detail" onerror="this.style.display='none'">` : '';
+  const videoHtml=ex.video?`<a href="${ex.video}" target="_blank" rel="noopener" class="btn-sm" style="display:block;text-align:center;text-decoration:none;margin-bottom:16px">▶ Ver vídeo do exercício</a>` : '';
   content.innerHTML=`
-    ${gifHtml}
     <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
       <div style="width:48px;height:48px;border-radius:14px;overflow:hidden;flex-shrink:0;background:var(--surface2);display:flex;align-items:center;justify-content:center">
         ${exIconHtml(ex,48)}
@@ -1524,6 +1508,7 @@ function openExDetail(exId) {
       <div style="font-size:12px;font-weight:700;color:var(--text-3);letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px">Dica de Execução</div>
       <div style="font-size:14px;line-height:1.6;color:var(--text)">${ex.tips}</div>
     </div>
+    ${videoHtml}
     <div style="display:flex;gap:8px">
       <button class="btn-sm" style="flex:1" onclick="closeModal('modal-exdetail')">Fechar</button>
       <button class="btn-sm btn-primary" style="flex:1" onclick="closeModal('modal-exdetail');selectDayAndAdd('${ex.id}')">Adicionar ao Treino</button>
@@ -1596,70 +1581,146 @@ function showToast(msg) {
 }
 
 // ─── TIMER DE DESCANSO ────────────────────────────────────────
-// Presets padrão (segundos)
-const TIMER_PRESETS = [60, 90, 120, 180];
-let timerTotal   = 90;   // duração configurada (segundos)
-let timerLeft    = 90;   // segundos restantes
-let timerRunning = false;
-let timerInterval= null;
-let timerBeepCtx = null;
-let timerMuted = false;
+// O tempo é calculado pelo relógio real (horário de término), não por contagem de ticks,
+// então não atrasa quando o celular throttla o JS. O alarme vai "embutido" num áudio
+// (silêncio + bips) que começa a tocar no clique: o sistema toca o bip na hora certa
+// mesmo com a tela bloqueada, sem depender do JS estar acordado.
+const TIMER_PRESETS = [60, 90, 120, 180, 300];
+const BEEP_COUNT = 5, BEEP_ON = 0.35, BEEP_OFF = 0.2, BEEP_FREQ = 880;
+const AUDIO_RATE = 8000;
+let timerTotal    = 90;    // duração configurada (segundos)
+let timerLeft     = 90;    // segundos restantes
+let timerRunning  = false;
+let timerFinished = false; // acabou de terminar (visual laranja até a próxima ação)
+let timerEndAt    = 0;     // timestamp (ms) de término
+let timerInterval = null;
+let timerMuted    = false;
+let alarmAudio    = null;  // <audio> com silêncio + bips
+let alarmUrl      = null;
+let alarmArmed    = false; // true quando o áudio realmente começou a tocar
+let timerBeepCtx  = null;
 
 function getTimerForDay() {
-  // Retorna o tempo salvo para o dia selecionado, ou o padrão
   if(selectedDay!==null && state.days[selectedDay] && state.days[selectedDay].restTimer) {
     return state.days[selectedDay].restTimer;
   }
   return timerTotal;
 }
-
 function saveTimerForDay(secs) {
   if(selectedDay===null) return;
   if(!state.days[selectedDay]) state.days[selectedDay]={name:'',exercises:[]};
   state.days[selectedDay].restTimer = secs;
   save();
 }
-
 function initTimer() {
+  // Nunca mexe num timer rodando — trocar de dia/aba não interfere
+  if(timerRunning) { updateTimerDisplay(); return; }
   timerTotal = getTimerForDay();
   timerLeft  = timerTotal;
-  timerRunning = false;
   updateTimerDisplay();
 }
-
 function formatTime(s) {
+  s=Math.max(0,Math.round(s));
   const m=Math.floor(s/60), r=s%60;
   return `${m}:${r.toString().padStart(2,'0')}`;
 }
 
+// ─── ÁUDIO DO ALARME ─────────────────────────────────────────────
+// Gera um WAV (8 kHz, 8 bits) = `silenceSecs` de silêncio + 5 bips no volume máximo.
+function buildAlarmWav(silenceSecs, withBeep) {
+  const beepSecs = withBeep ? BEEP_COUNT*(BEEP_ON+BEEP_OFF) : 0.1;
+  const total = Math.ceil((silenceSecs + beepSecs) * AUDIO_RATE);
+  const buf = new ArrayBuffer(44 + total);
+  const v = new DataView(buf);
+  const str = (o,s)=>{ for(let i=0;i<s.length;i++) v.setUint8(o+i,s.charCodeAt(i)); };
+  str(0,'RIFF'); v.setUint32(4,36+total,true); str(8,'WAVE');
+  str(12,'fmt '); v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
+  v.setUint32(24,AUDIO_RATE,true); v.setUint32(28,AUDIO_RATE,true); v.setUint16(32,1,true); v.setUint16(34,8,true);
+  str(36,'data'); v.setUint32(40,total,true);
+  const bytes = new Uint8Array(buf, 44);
+  bytes.fill(128); // silêncio
+  if(withBeep) {
+    const start = Math.floor(silenceSecs*AUDIO_RATE);
+    const onN = Math.floor(BEEP_ON*AUDIO_RATE), period = Math.floor((BEEP_ON+BEEP_OFF)*AUDIO_RATE);
+    const fade = Math.floor(0.006*AUDIO_RATE);
+    const k = 2.2, norm = Math.tanh(k);
+    for(let b=0;b<BEEP_COUNT;b++) {
+      for(let i=0;i<onN;i++) {
+        const idx = start + b*period + i;
+        if(idx>=total) break;
+        const env = Math.min(1, i/fade, (onN-i)/fade);
+        // mesmo bip senoidal de 880 Hz, levemente saturado = bem mais alto
+        const s = Math.tanh(k*Math.sin(2*Math.PI*BEEP_FREQ*i/AUDIO_RATE))/norm * env;
+        bytes[idx] = Math.max(0, Math.min(255, Math.round(128 + s*127)));
+      }
+    }
+  }
+  return URL.createObjectURL(new Blob([buf], {type:'audio/wav'}));
+}
+
+function stopAlarmAudio() {
+  alarmArmed = false;
+  if(alarmAudio) { try { alarmAudio.pause(); } catch(e){} }
+  if(alarmUrl) { URL.revokeObjectURL(alarmUrl); alarmUrl=null; }
+}
+// Precisa ser chamado dentro de um clique (regra de autoplay dos navegadores)
+function armAlarmAudio(secondsLeft) {
+  stopAlarmAudio();
+  if(!alarmAudio) { alarmAudio = new Audio(); alarmAudio.preload='auto'; }
+  alarmUrl = buildAlarmWav(secondsLeft, !timerMuted);
+  alarmAudio.src = alarmUrl;
+  alarmAudio.volume = 1;
+  const p = alarmAudio.play();
+  if(p && p.then) p.then(()=>{ alarmArmed=true; }).catch(()=>{ alarmArmed=false; });
+  else alarmArmed = true;
+  if('mediaSession' in navigator) {
+    try {
+      navigator.mediaSession.metadata = new MediaMetadata({ title:'Descanso', artist:'GymControl' });
+      navigator.mediaSession.setActionHandler('pause', ()=>pauseTimer());
+      navigator.mediaSession.setActionHandler('play',  ()=>startTimer());
+    } catch(e){}
+  }
+}
+
+// Bip de reserva (Web Audio) caso o áudio embutido não tenha conseguido tocar
+function playBeep() {
+  if(timerMuted) return;
+  try {
+    if(!timerBeepCtx) timerBeepCtx=new(window.AudioContext||window.webkitAudioContext)();
+    const ctx=timerBeepCtx;
+    if(ctx.state==='suspended') ctx.resume();
+    const shaper=ctx.createWaveShaper();
+    const curve=new Float32Array(256);
+    for(let i=0;i<256;i++){ const x=i/128-1; curve[i]=Math.tanh(2.2*x)/Math.tanh(2.2); }
+    shaper.curve=curve; shaper.connect(ctx.destination);
+    for(let b=0;b<BEEP_COUNT;b++){
+      const t=ctx.currentTime+b*(BEEP_ON+BEEP_OFF);
+      const osc=ctx.createOscillator(), gain=ctx.createGain();
+      osc.frequency.value=BEEP_FREQ;
+      osc.connect(gain); gain.connect(shaper);
+      gain.gain.setValueAtTime(0,t);
+      gain.gain.linearRampToValueAtTime(1,t+.006);
+      gain.gain.setValueAtTime(1,t+BEEP_ON-.006);
+      gain.gain.linearRampToValueAtTime(0,t+BEEP_ON);
+      osc.start(t); osc.stop(t+BEEP_ON);
+    }
+  } catch(e){}
+}
+
 // ─── WAKE LOCK & NOTIFICATION ────────────────────────────────────
 let wakeLock = null;
-
 async function requestWakeLock() {
-  try {
-    if('wakeLock' in navigator) {
-      wakeLock = await navigator.wakeLock.request('screen');
-    }
-  } catch(e) {}
+  try { if('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {}
 }
 function releaseWakeLock() {
   try { if(wakeLock) { wakeLock.release(); wakeLock=null; } } catch(e) {}
 }
 async function requestNotificationPermission() {
-  if('Notification' in window && Notification.permission==='default') {
-    await Notification.requestPermission();
-  }
+  try { if('Notification' in window && Notification.permission==='default') await Notification.requestPermission(); } catch(e){}
 }
 function sendTimerNotification() {
   if('Notification' in window && Notification.permission==='granted') {
-    try {
-      new Notification('GymControl ⏰', {
-        body: 'Descanso concluído! Próxima série!',
-        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💪</text></svg>',
-        silent: false,
-        requireInteraction: true
-      });
-    } catch(e) {}
+    try { new Notification('GymControl ⏰', { body:'Descanso concluído! Próxima série!', requireInteraction:true }); } catch(e) {}
   }
 }
 
@@ -1680,101 +1741,117 @@ function updateTimerDisplay() {
   const bigDisp  = document.getElementById('timer-big-display');
   const playBtn  = document.getElementById('timer-modal-play');
   const arcFill  = document.getElementById('timer-arc-fill');
-  const circumference = 2 * Math.PI * 88; // r=88
+  const circumference = 2 * Math.PI * 88;
 
   const timeStr = formatTime(timerLeft);
   if(chipDisp) chipDisp.textContent = timeStr;
   if(bigDisp)  bigDisp.textContent  = timeStr;
 
-  // Arc progress
   if(arcFill) {
-    const ratio = timerTotal > 0 ? timerLeft / timerTotal : 1;
-    const offset = circumference * (1 - ratio);
+    const ratio = timerTotal > 0 ? Math.min(1, timerLeft / timerTotal) : 1;
     arcFill.style.strokeDasharray  = circumference;
-    arcFill.style.strokeDashoffset = offset;
+    arcFill.style.strokeDashoffset = circumference * (1 - ratio);
   }
 
-  if(timerLeft === 0) {
-    chip && chip.classList.add('finished');
-    chip && chip.classList.remove('active');
-    bigDisp && bigDisp.classList.add('finished');
-    arcFill && arcFill.classList.add('finished');
-    if(playBtn) playBtn.textContent = '↺';
-    if(chipIcon) chipIcon.textContent = '⏰';
-  } else if(timerRunning) {
-    chip && chip.classList.add('active');
-    chip && chip.classList.remove('finished');
-    bigDisp && bigDisp.classList.remove('finished');
-    arcFill && arcFill.classList.remove('finished');
-    if(playBtn) playBtn.textContent = '⏸';
-    if(chipIcon) chipIcon.textContent = '▶';
-  } else {
-    chip && chip.classList.remove('active','finished');
-    bigDisp && bigDisp.classList.remove('finished');
-    arcFill && arcFill.classList.remove('finished');
-    if(playBtn) playBtn.textContent = '▶';
-    if(chipIcon) chipIcon.textContent = '⏱';
-  }
+  const finished = timerFinished && !timerRunning;
+  chip && chip.classList.toggle('finished', finished);
+  chip && chip.classList.toggle('active', timerRunning);
+  bigDisp && bigDisp.classList.toggle('finished', finished);
+  arcFill && arcFill.classList.toggle('finished', finished);
+  // O botão principal é sempre play/pause — nunca vira um segundo ↺
+  if(playBtn)  playBtn.textContent  = timerRunning ? '⏸' : '▶';
+  if(chipIcon) chipIcon.textContent = finished ? '⏰' : (timerRunning ? '▶' : '⏱');
 
-  // Active preset highlight
   document.querySelectorAll('.timer-preset-btn').forEach(b => {
     b.classList.toggle('active', parseInt(b.dataset.secs||0) === timerTotal);
   });
 }
 
-function toggleTimer() {
-  if(timerLeft===0) { resetTimer(); return; }
-  if(timerRunning) {
-    clearInterval(timerInterval);
-    timerRunning=false;
-    releaseWakeLock();
-  } else {
-    timerRunning=true;
-    requestWakeLock();
-    timerInterval=setInterval(()=>{
-      if(timerLeft>0) { timerLeft--; updateTimerDisplay(); }
-      if(timerLeft===0) {
-        clearInterval(timerInterval); timerRunning=false;
-        releaseWakeLock();
-        updateTimerDisplay();
-        playBeep();
-        sendTimerNotification();
-        showToast('⏰ Descanso concluído! Próxima série!');
-        openTimerModal(); // traz o modal pra frente se estiver fechado
-      }
-    },1000);
-  }
+function timerTick() {
+  if(!timerRunning) return;
+  timerLeft = Math.max(0, (timerEndAt - Date.now())/1000);
+  if(timerLeft <= 0) finishTimer();
+  else updateTimerDisplay();
+}
+
+function startTimer() {
+  if(timerRunning) return;
+  if(timerLeft <= 0) timerLeft = timerTotal;
+  timerFinished = false;
+  timerEndAt = Date.now() + timerLeft*1000;
+  timerRunning = true;
+  clearInterval(timerInterval);
+  timerInterval = setInterval(timerTick, 250);
+  armAlarmAudio(timerLeft);
+  requestWakeLock();
   updateTimerDisplay();
 }
 
+function pauseTimer() {
+  if(!timerRunning) return;
+  timerLeft = Math.max(1, (timerEndAt - Date.now())/1000);
+  timerRunning = false;
+  clearInterval(timerInterval);
+  stopAlarmAudio();
+  releaseWakeLock();
+  updateTimerDisplay();
+}
+
+function finishTimer() {
+  const audioHandledBeep = alarmArmed; // o bip já está tocando dentro do áudio
+  clearInterval(timerInterval);
+  timerRunning  = false;
+  timerFinished = true;
+  timerLeft     = timerTotal;          // já pronto pra próxima: 1 clique inicia
+  alarmArmed    = false;               // deixa o áudio terminar os bips sozinho
+  releaseWakeLock();
+  if(!audioHandledBeep) playBeep();
+  try { if(navigator.vibrate) navigator.vibrate([300,200,300,200,300,200,300,200,300]); } catch(e){}
+  if(document.hidden) sendTimerNotification();
+  showToast('⏰ Descanso concluído! Próxima série!');
+  openTimerModal();
+  updateTimerDisplay();
+}
+
+function toggleTimer() { timerRunning ? pauseTimer() : startTimer(); }
+
 function resetTimer() {
   clearInterval(timerInterval);
-  timerRunning=false;
-  timerLeft=timerTotal;
+  timerRunning  = false;
+  timerFinished = false;
+  timerLeft     = timerTotal;
+  stopAlarmAudio();
   releaseWakeLock();
   updateTimerDisplay();
 }
 
 function adjustTimerModal(delta) {
-  const wasRunning = timerRunning;
-  clearInterval(timerInterval); timerRunning=false;
-  timerTotal = Math.max(10, timerTotal+delta);
-  timerLeft  = timerTotal;
-  saveTimerForDay(timerTotal);
+  if(timerRunning) {
+    // Rodando: ajusta só o descanso atual, sem parar
+    timerEndAt = Math.max(Date.now()+1000, timerEndAt + delta*1000);
+    timerLeft  = (timerEndAt - Date.now())/1000;
+    armAlarmAudio(timerLeft);
+  } else {
+    timerTotal = Math.max(10, timerTotal+delta);
+    timerLeft  = timerTotal;
+    timerFinished = false;
+    saveTimerForDay(timerTotal);
+  }
   updateTimerDisplay();
-  if(wasRunning) toggleTimer();
 }
-
 function adjustTimer(delta) { adjustTimerModal(delta); }
 
 function setTimerPreset(secs) {
-  clearInterval(timerInterval); timerRunning=false;
-  timerTotal = secs; timerLeft = secs;
+  timerTotal = secs;
   saveTimerForDay(timerTotal);
+  if(timerRunning) {
+    showToast(`Próximo descanso: ${formatTime(secs)}`);
+  } else {
+    timerLeft = secs; timerFinished = false;
+    showToast(`Timer: ${formatTime(secs)}`);
+  }
   updateTimerDisplay();
-  showToast(`Timer: ${formatTime(secs)}`);
 }
-
 function cyclePreset() {
   const idx=TIMER_PRESETS.indexOf(timerTotal);
   setTimerPreset(TIMER_PRESETS[(idx+1)%TIMER_PRESETS.length]);
@@ -1782,30 +1859,18 @@ function cyclePreset() {
 
 function toggleTimerMute() {
   timerMuted = !timerMuted;
-  const icon = timerMuted ? '🔕' : '🔔';
-  const btn1 = document.getElementById('timer-mute-btn');
-  const btn2 = document.getElementById('timer-modal-mute');
-  if(btn1) btn1.textContent = icon;
-  if(btn2) btn2.textContent = icon;
+  const btn = document.getElementById('timer-modal-mute');
+  if(btn) btn.textContent = timerMuted ? '🔕' : '🔔';
+  if(timerRunning) armAlarmAudio((timerEndAt - Date.now())/1000); // aplica já no descanso atual
 }
 
-function playBeep() {
-  if(timerMuted) return;
-  try {
-    if(!timerBeepCtx) timerBeepCtx=new(window.AudioContext||window.webkitAudioContext)();
-    const ctx=timerBeepCtx;
-    [0,200,400].forEach(delay=>{
-      const osc=ctx.createOscillator();
-      const gain=ctx.createGain();
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.frequency.value=880;
-      gain.gain.setValueAtTime(.5,ctx.currentTime+delay/1000);
-      gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+delay/1000+.25);
-      osc.start(ctx.currentTime+delay/1000);
-      osc.stop(ctx.currentTime+delay/1000+.25);
-    });
-  } catch(e){}
-}
+// Ao voltar pro app (desbloqueou a tela), recalcula na hora e religa o wake lock
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState==='visible') {
+    if(timerRunning) { timerTick(); if(timerRunning) requestWakeLock(); }
+    updateTimerDisplay();
+  }
+});
 
 // ─── INIT ──────────────────────────────────────────────────────
 function init() {
